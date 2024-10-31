@@ -2,12 +2,12 @@ import { StyleSheet, Text, View, Dimensions, Animated, TouchableOpacity } from '
 import React, { useRef, useState } from 'react'
 
 const StackChallengeChoose = ({ navigation }) => {
+  const quizOptions = ['Math Quiz', 'Science Quiz', 'History Quiz', 'Geography Quiz'];
   const [isDropping, setIsDropping] = useState(false);
-  const ballPosition = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const [selectedQuizIndex, setSelectedQuizIndex] = useState(null);
   
   const screenWidth = Dimensions.get('window').width;
   const screenHeight = Dimensions.get('window').height;
-  const quizOptions = ['Math Quiz', 'Science Quiz', 'History Quiz', 'Geography Quiz'];
   
   // Configure peg layout
   const ROWS = 5;
@@ -27,10 +27,13 @@ const StackChallengeChoose = ({ navigation }) => {
     }
   }
 
+  const ballPosition = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+
   const dropBall = () => {
     if (isDropping) return;
     
     setIsDropping(true);
+    
     const startX = screenWidth / 2 - 10;
     let currentX = startX;
     let currentY = 0;
@@ -38,36 +41,29 @@ const StackChallengeChoose = ({ navigation }) => {
     // Reset ball position
     ballPosition.setValue({ x: currentX, y: currentY });
     
-    // Calculate final positions for each quiz option
-    const quizWidths = screenWidth / 4;
-    const finalPositions = quizOptions.map((_, index) => 
-      quizWidths * index + (quizWidths / 2) - 10 // -10 to center ball
-    );
+    // Choose random target index and store it
+    const targetIndex = Math.floor(Math.random() * 4);
+    setSelectedQuizIndex(targetIndex);
     
-    // Create bounce animations
+    // Calculate target X position based on index
+    const quizWidth = screenWidth / 4;
+    const targetX = (quizWidth * targetIndex) + (quizWidth / 2) - 10;
+    
     const animations = [];
-    const numberOfBounces = ROWS + 2; // Match number of bounces to rows of pegs
+    const numberOfBounces = ROWS + 2;
     
     for (let i = 0; i < numberOfBounces; i++) {
-      // Calculate next position based on current position and nearby pegs
-      const rowIndex = Math.floor(i / 2);
-      const isOffset = rowIndex % 2 === 1;
-      
-      // Make the ball more likely to bounce towards a final position
       const progress = i / numberOfBounces;
-      const nearestFinal = finalPositions.reduce((prev, curr) => 
-        Math.abs(curr - currentX) < Math.abs(prev - currentX) ? curr : prev
-      );
       
-      // Bias the random movement towards the nearest final position
-      const bias = (nearestFinal - currentX) * progress * 0.3;
-      const nextX = currentX + bias + (Math.random() - 0.5) * PEG_SPACING * (1 - progress);
+      const bias = (targetX - currentX) * progress * 0.2;
+      const randomFactor = (1 - progress) * PEG_SPACING * 0.8;
+      const nextX = currentX + bias + (Math.random() - 0.5) * randomFactor;
       const nextY = (i + 1) * (screenHeight - 200) / numberOfBounces;
       
       animations.push(
         Animated.parallel([
           Animated.timing(ballPosition.x, {
-            toValue: nextX,
+            toValue: Math.max(PEG_SPACING, Math.min(screenWidth - PEG_SPACING, nextX)),
             duration: 400,
             useNativeDriver: true,
           }),
@@ -83,20 +79,16 @@ const StackChallengeChoose = ({ navigation }) => {
       currentY = nextY;
     }
     
-    // Final animation to snap to nearest quiz option
-    const finalX = finalPositions.reduce((prev, curr) => 
-      Math.abs(curr - currentX) < Math.abs(prev - currentX) ? curr : prev
-    );
-    
+    // Final snap animation
     animations.push(
       Animated.parallel([
         Animated.timing(ballPosition.x, {
-          toValue: finalX,
+          toValue: targetX,
           duration: 200,
           useNativeDriver: true,
         }),
         Animated.timing(ballPosition.y, {
-          toValue: screenHeight - 100, // Position just above quiz options
+          toValue: screenHeight - 100,
           duration: 200,
           useNativeDriver: true,
         })
@@ -105,8 +97,16 @@ const StackChallengeChoose = ({ navigation }) => {
     
     Animated.sequence(animations).start(() => {
       setIsDropping(false);
-      const quizIndex = Math.floor((finalX + 10) / (screenWidth / 4));
-      alert(`Selected: ${quizOptions[quizIndex]}`);
+      
+      console.log({
+        finalX: targetX,
+        screenWidth,
+        finalQuizIndex: targetIndex,
+        selectedQuiz: quizOptions[targetIndex],
+        allQuizzes: quizOptions
+      });
+      
+      alert(`Selected: ${quizOptions[targetIndex]}`);
     });
   };
 
@@ -116,14 +116,13 @@ const StackChallengeChoose = ({ navigation }) => {
         <Text>Drop Ball</Text>
       </TouchableOpacity>
 
-      {/* Render pegs */}
       {pegPositions.map((peg, index) => (
         <View
           key={index}
           style={[
             styles.peg,
             {
-              left: peg.x, // Center the peg
+              left: peg.x,
               top: peg.y,
             },
           ]}
@@ -144,14 +143,21 @@ const StackChallengeChoose = ({ navigation }) => {
 
       <View style={styles.quizContainer}>
         {quizOptions.map((quiz, index) => (
-          <View key={index} style={styles.quizOption}>
+          <View 
+            key={index} 
+            style={[
+              styles.quizOption,
+              selectedQuizIndex === index && styles.selectedQuiz
+            ]}
+          >
             <Text>{quiz}</Text>
+            <Text style={{fontSize: 10}}>{index}</Text>
           </View>
         ))}
       </View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -199,6 +205,10 @@ const styles = StyleSheet.create({
     width: '22%',
     borderWidth: 1,
     borderColor: '#ddd',
+  },
+  selectedQuiz: {
+    borderColor: 'green',
+    borderWidth: 2,
   },
 });
 
