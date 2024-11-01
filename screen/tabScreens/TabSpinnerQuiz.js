@@ -83,7 +83,7 @@ const TabSpinnerQuiz = ({ navigation }) => {
               <Text 
                 style={[
                   styles.quarterText,
-                  { transform: [{ rotate: '45deg' }] }
+                  { transform: [{ rotate: '0deg' }] }
                 ]}
                 numberOfLines={2}
                 adjustsFontSizeToFit
@@ -153,12 +153,12 @@ const styles = StyleSheet.create({
   quarterText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 20,
     width: SPINNER_SIZE / 3,
     textAlign: 'center',
     position: 'absolute',
-    left: -SPINNER_SIZE / 4,
-    top: SPINNER_SIZE / 6,
+    left: -SPINNER_SIZE / 80,
+    top: SPINNER_SIZE / 5,
   },
   centerPoint: {
     width: 20,
