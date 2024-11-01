@@ -1,4 +1,5 @@
 import TabUserProfile from './TabUserProfile';
 import TabChooseQuiz from './TabChooseQuiz';
-
-export {TabUserProfile,TabChooseQuiz};
+import TabSpinnerQuiz from './TabSpinnerQuiz';
+    
+export {TabUserProfile, TabChooseQuiz, TabSpinnerQuiz};

@@ -2,7 +2,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {StoreProvider} from './store/context';
-import {TabUserProfile, TabChooseQuiz} from './screen/tabScreens';
+import {TabUserProfile, TabChooseQuiz, TabSpinnerQuiz} from './screen/tabScreens';
 import {StackWelcomeScreen, StackChallengeChoose, StackQuizScreen} from './screen/stackScreens';
 
 const Tab = createBottomTabNavigator();
@@ -13,6 +13,7 @@ export const TabNavigator = () => {
     <Tab.Navigator screenOptions={{headerShown: false}}>
       <Tab.Screen name="TabUserProfile" component={TabUserProfile} />
       <Tab.Screen name="TabChooseQuiz" component={TabChooseQuiz} />
+      <Tab.Screen name="TabSpinnerQuiz" component={TabSpinnerQuiz} />
     </Tab.Navigator>
   );
 };
