@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View, Animated, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { StyleSheet, Text, View, Animated, TouchableOpacity, Dimensions } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { useStore } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
+import QuizAlert from '../../components/ui/QuizAlert';
 
 const { width } = Dimensions.get('window');
 const SPINNER_SIZE = width * 0.8;
@@ -10,6 +11,8 @@ const TabSpinnerQuiz = ({ navigation }) => {
   const spinValue = useRef(new Animated.Value(0)).current;
   const [isSpinning, setIsSpinning] = useState(false);
   const { getQuizByType } = useStore();
+  const [showAlert, setShowAlert] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
 
   const quizOptions = [
     { name: 'History\nQuiz', type: 'HISTORY', colors: ['#FF512F', '#DD2476'] },
@@ -41,25 +44,21 @@ const TabSpinnerQuiz = ({ navigation }) => {
       }),
     ]).start(() => {
       setIsSpinning(false);
-      const selectedQuiz = quizOptions[selectedIndex];
-      Alert.alert(
-        'Quiz Selected!',
-        `You got: ${selectedQuiz.name.replace('\n', ' ')}`,
-        [
-          {
-            text: 'Start Quiz',
-            onPress: () => navigation.navigate('QuizScreen', {
-              quizType: selectedQuiz.type,
-              quizName: selectedQuiz.name.replace('\n', ' ')
-            })
-          },
-          {
-            text: 'Spin Again',
-            style: 'cancel'
-          }
-        ]
-      );
+      setSelectedQuiz(quizOptions[selectedIndex]);
+      setShowAlert(true);
     });
+  };
+
+  const handleStartQuiz = () => {
+    setShowAlert(false);
+    navigation.navigate('QuizScreen', {
+      quizType: selectedQuiz.type,
+      quizName: selectedQuiz.name.replace('\n', ' ')
+    });
+  };
+
+  const handleSpinAgain = () => {
+    setShowAlert(false);
   };
 
   const spin = spinValue.interpolate({
@@ -116,6 +115,14 @@ const TabSpinnerQuiz = ({ navigation }) => {
           </Text>
         </LinearGradient>
       </TouchableOpacity>
+
+      <QuizAlert
+        visible={showAlert}
+        quizName={selectedQuiz?.name.replace('\n', ' ')}
+        onStartQuiz={handleStartQuiz}
+        onSpinAgain={handleSpinAgain}
+        onClose={() => setShowAlert(false)}
+      />
     </LinearGradient>
   );
 };
