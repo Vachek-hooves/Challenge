@@ -34,15 +34,18 @@ const StackQuizScreen = ({ route, navigation }) => {
 
   const handleAnswer = (selectedAnswer) => {
     fadeOut(() => {
-      if (selectedAnswer === questions[currentQuestionIndex].correctAnswer) {
-        setScore(prev => prev + 1);
+      const isCorrect = selectedAnswer === questions[currentQuestionIndex].correctAnswer;
+      if (isCorrect) {
+        setScore(prevScore => prevScore + 1);
       }
 
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
-      } else {
-        setShowResult(true);
-      }
+      setTimeout(() => {
+        if (currentQuestionIndex < questions.length - 1) {
+          setCurrentQuestionIndex(prev => prev + 1);
+        } else {
+          setShowResult(true);
+        }
+      }, 500);
     });
   };
 
@@ -79,6 +82,8 @@ const StackQuizScreen = ({ route, navigation }) => {
             <TouchableOpacity onPress={restartQuiz}>
               <LinearGradient
                 colors={['#00b09b', '#96c93d']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={styles.button}
               >
                 <Text style={styles.buttonText}>Try Again</Text>
@@ -88,6 +93,8 @@ const StackQuizScreen = ({ route, navigation }) => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <LinearGradient
                 colors={['#FF512F', '#DD2476']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={styles.button}
               >
                 <Text style={styles.buttonText}>Back to Spinner</Text>
@@ -96,6 +103,15 @@ const StackQuizScreen = ({ route, navigation }) => {
           </View>
         </View>
       </LinearGradient>
+    );
+  }
+
+  const currentQuestion = questions[currentQuestionIndex];
+  if (!currentQuestion) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loading}>Loading question...</Text>
+      </View>
     );
   }
 
@@ -114,21 +130,25 @@ const StackQuizScreen = ({ route, navigation }) => {
 
       <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
         <Text style={styles.question}>
-          {questions[currentQuestionIndex].question}
+          {currentQuestion.question}
         </Text>
 
         <View style={styles.optionsContainer}>
-          {questions[currentQuestionIndex].options.map((option, index) => (
+          {currentQuestion.options.map((option, index) => (
             <TouchableOpacity
               key={index}
               onPress={() => handleAnswer(option)}
               style={styles.optionWrapper}
             >
               <LinearGradient
-                colors={['#4776E6', '#8E54E9']}
+                colors={getOptionColors(index)}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={styles.option}
               >
-                <Text style={styles.optionText}>{option}</Text>
+                <Text style={styles.optionText}>
+                  {String.fromCharCode(65 + index)}. {option}
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
           ))}
@@ -136,6 +156,16 @@ const StackQuizScreen = ({ route, navigation }) => {
       </Animated.View>
     </LinearGradient>
   );
+};
+
+const getOptionColors = (index) => {
+  const colorSets = [
+    ['#FF512F', '#DD2476'], // Red-Pink
+    ['#4776E6', '#8E54E9'], // Blue-Purple
+    ['#00b09b', '#96c93d'], // Green
+    ['#f12711', '#f5af19'], // Orange
+  ];
+  return colorSets[index % colorSets.length];
 };
 
 const styles = StyleSheet.create({
@@ -180,17 +210,29 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   optionWrapper: {
-    borderRadius: 10,
+    borderRadius: 15,
     overflow: 'hidden',
+    marginBottom: 12,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   option: {
-    padding: 15,
-    borderRadius: 10,
+    padding: 20,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   optionText: {
     color: '#fff',
-    fontSize: 16,
-    textAlign: 'center',
+    fontSize: 18,
+    textAlign: 'left',
+    fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   resultContainer: {
     flex: 1,
@@ -198,36 +240,61 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resultTitle: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 20,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   resultScore: {
-    fontSize: 24,
+    fontSize: 26,
     color: '#fff',
     marginBottom: 10,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   resultPercentage: {
-    fontSize: 40,
+    fontSize: 48,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 30,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   buttonContainer: {
+    width: '100%',
     gap: 15,
+    alignItems: 'center',
   },
   button: {
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    minWidth: 200,
+    paddingVertical: 18,
+    paddingHorizontal: 35,
+    borderRadius: 25,
+    minWidth: 220,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     textAlign: 'center',
     fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   loading: {
     fontSize: 20,
