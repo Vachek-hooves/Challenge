@@ -51,7 +51,7 @@ const TabSpinnerQuiz = ({ navigation }) => {
 
   const handleStartQuiz = () => {
     setShowAlert(false);
-    navigation.navigate('QuizScreen', {
+    navigation.navigate('StackQuizScreen', {
       quizType: selectedQuiz.type,
       quizName: selectedQuiz.name.replace('\n', ' ')
     });
