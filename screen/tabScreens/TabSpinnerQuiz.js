@@ -14,7 +14,7 @@ const TabSpinnerQuiz = ({ navigation }) => {
   const quizOptions = [
     { name: 'History\nQuiz', type: 'HISTORY', colors: ['#FF512F', '#DD2476'] },
     { name: 'Sport\nQuiz', type: 'SPORT', colors: ['#4776E6', '#8E54E9'] },
-    { name: 'Capitals\nQuiz', type: 'CAPITALS', colors: ['#11998e', '#38ef7d'] },
+    { name: 'Capitals\nQuiz', type: 'CAPITALS', colors: ['#00b09b', '#96c93d'] },
     { name: 'Film\nQuiz', type: 'FILM', colors: ['#f12711', '#f5af19'] },
   ];
 
@@ -68,7 +68,10 @@ const TabSpinnerQuiz = ({ navigation }) => {
   });
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
+      style={styles.container}
+    >
       <View style={styles.spinnerContainer}>
         <Animated.View style={[styles.spinner, { transform: [{ rotate: spin }] }]}>
           {quizOptions.map((quiz, index) => (
@@ -83,7 +86,7 @@ const TabSpinnerQuiz = ({ navigation }) => {
               <Text 
                 style={[
                   styles.quarterText,
-                  { transform: [{ rotate: '0deg' }] }
+                  { transform: [{ rotate: '45deg' }] }
                 ]}
                 numberOfLines={2}
                 adjustsFontSizeToFit
@@ -102,10 +105,10 @@ const TabSpinnerQuiz = ({ navigation }) => {
       <TouchableOpacity 
         onPress={spinWheel} 
         disabled={isSpinning}
-        style={[styles.spinButton, isSpinning && styles.spinButtonDisabled]}
+        style={styles.spinButton}
       >
         <LinearGradient
-          colors={isSpinning ? ['#666', '#999'] : ['#4776E6', '#8E54E9']}
+          colors={isSpinning ? ['#666', '#999'] : ['#00b09b', '#96c93d']}
           style={styles.buttonGradient}
         >
           <Text style={styles.buttonText}>
@@ -113,7 +116,7 @@ const TabSpinnerQuiz = ({ navigation }) => {
           </Text>
         </LinearGradient>
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -122,7 +125,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1a1a1a',
   },
   spinnerContainer: {
     width: SPINNER_SIZE,
@@ -139,7 +141,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: '#fff',
-    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   spinnerQuarter: {
     position: 'absolute',
@@ -149,27 +155,36 @@ const styles = StyleSheet.create({
     transformOrigin: '0% 100%',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   quarterText: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize:22,
     width: SPINNER_SIZE / 3,
     textAlign: 'center',
     position: 'absolute',
-    left: -SPINNER_SIZE / 80,
-    top: SPINNER_SIZE / 5,
+    left: -SPINNER_SIZE / 120,
+    top: SPINNER_SIZE / 6,
   },
   centerPoint: {
-    width: 20,
-    height: 20,
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    backgroundColor: '#FFD700',
+    borderRadius: 12,
     position: 'absolute',
     zIndex: 1,
-    elevation: 5,
     borderWidth: 2,
-    borderColor: '#ddd',
+    borderColor: '#FFA500',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   pointerContainer: {
     position: 'absolute',
@@ -182,34 +197,37 @@ const styles = StyleSheet.create({
   pointer: {
     width: 20,
     height: 40,
-    backgroundColor: '#ff0000',
+    backgroundColor: '#FF4444',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    elevation: 5,
-  },
-  spinButton: {
-    width: 200,
-    height: 50,
-    borderRadius: 25,
-    overflow: 'hidden',
-    elevation: 5,
+    borderWidth: 2,
+    borderColor: '#FF6666',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    elevation: 5,
   },
-  spinButtonDisabled: {
-    opacity: 0.7,
+  spinButton: {
+    alignSelf: 'center',
+    borderRadius: 25,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    overflow: 'hidden',
   },
   buttonGradient: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 25,
   },
   buttonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
