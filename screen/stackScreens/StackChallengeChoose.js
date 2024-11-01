@@ -10,8 +10,8 @@ const StackChallengeChoose = ({ navigation }) => {
   const screenHeight = Dimensions.get('window').height;
   
   // Configure peg layout
-  const ROWS = 5;
-  const PEGS_PER_ROW = 5;
+  const ROWS = 6;
+  const PEGS_PER_ROW = 6;
   const PEG_SPACING = screenWidth / (PEGS_PER_ROW + 1);
   const ROW_SPACING = (screenHeight - 80) / (ROWS + 1); // -250 to leave space for top and bottom
 
@@ -122,7 +122,7 @@ const StackChallengeChoose = ({ navigation }) => {
           style={[
             styles.peg,
             {
-              left: peg.x,
+              left: peg.x-10,
               top: peg.y,
             },
           ]}
@@ -175,10 +175,10 @@ const styles = StyleSheet.create({
   },
   peg: {
     position: 'absolute',
-    width: 12,
-    height: 12,
+    width: 22,
+    height: 22,
     backgroundColor: '#666',
-    borderRadius: 3,
+    borderRadius: 12,
     zIndex: 1,
   },
   ball: {
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   selectedQuiz: {
-    borderColor: 'green',
+    // borderColor: 'green',
     borderWidth: 2,
   },
 });
