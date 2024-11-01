@@ -1,9 +1,18 @@
 import { StyleSheet, Text, View, Dimensions, Animated, TouchableOpacity } from 'react-native'
 import React, { useRef, useState } from 'react'
 import LinearGradient from 'react-native-linear-gradient';
+import { useStore } from '../../store/context';
 
 const StackChallengeChoose = ({ navigation }) => {
-  const quizOptions = ['Math Quiz', 'Science Quiz', 'History Quiz', 'Geography Quiz'];
+  const { getQuizByType } = useStore();
+  
+  const quizOptions = [
+    { name: 'History Quiz', type: 'HISTORY' },
+    { name: 'Sport Quiz', type: 'SPORT' },
+    { name: 'Capitals Quiz', type: 'CAPITALS' },
+    { name: 'Film Quiz', type: 'FILM' }
+  ];
+  
   const [isDropping, setIsDropping] = useState(false);
   const [selectedQuizIndex, setSelectedQuizIndex] = useState(null);
   
@@ -101,15 +110,22 @@ const StackChallengeChoose = ({ navigation }) => {
         setIsDropping(false);
         setSelectedQuizIndex(targetIndex);
         
+        const selectedQuiz = quizOptions[targetIndex];
+        const quizData = getQuizByType(selectedQuiz.type);
+        
         console.log({
           finalX: targetX,
           screenWidth,
           finalQuizIndex: targetIndex,
-          selectedQuiz: quizOptions[targetIndex],
-          allQuizzes: quizOptions
+          selectedQuiz: selectedQuiz.name,
+          quizType: selectedQuiz.type,
+          quizData: quizData
         });
         
-        alert(`Selected: ${quizOptions[targetIndex]}`);
+        navigation.navigate('StackQuizScreen', {
+          quizType: selectedQuiz.type,
+          quizName: selectedQuiz.name
+        });
       }, 200);
     });
   };
@@ -157,13 +173,13 @@ const StackChallengeChoose = ({ navigation }) => {
         {quizOptions.map((quiz, index) => (
           <LinearGradient
             key={index}
-            colors={['#4776E6', '#8E54E9']}
+            colors={selectedQuizIndex === index ? ['#FF512F', '#DD2476'] : ['#4776E6', '#8E54E9']}
             style={[
               styles.quizOption,
-              !isDropping && selectedQuizIndex === index && styles.selectedQuiz
+              selectedQuizIndex === index && styles.selectedQuiz
             ]}
           >
-            <Text style={styles.quizText}>{quiz}</Text>
+            <Text style={styles.quizText}>{quiz.name}</Text>
             <Text style={styles.indexText}>{index}</Text>
           </LinearGradient>
         ))}

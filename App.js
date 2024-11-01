@@ -2,9 +2,9 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {StoreProvider} from './store/context';
-import {StackWelcomeScreen} from './screen/stackScreens';
 import {TabUserProfile, TabChooseQuiz} from './screen/tabScreens';
-import StackChallengeChoose from './screen/stackScreens/StackChallengeChoose';
+import {StackWelcomeScreen, StackChallengeChoose, StackQuizScreen} from './screen/stackScreens';
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +36,7 @@ function App() {
             name="StackChallengeChoose"
             component={StackChallengeChoose}
           />
+          <Stack.Screen name="StackQuizScreen" component={StackQuizScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </StoreProvider>
