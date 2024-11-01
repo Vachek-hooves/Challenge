@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, Dimensions, Animated, TouchableOpacity } from 'react-native'
 import React, { useRef, useState } from 'react'
+import LinearGradient from 'react-native-linear-gradient';
 
 const StackChallengeChoose = ({ navigation }) => {
   const quizOptions = ['Math Quiz', 'Science Quiz', 'History Quiz', 'Geography Quiz'];
@@ -10,7 +11,7 @@ const StackChallengeChoose = ({ navigation }) => {
   const screenHeight = Dimensions.get('window').height;
   
   // Configure peg layout
-  const ROWS = 6;
+  const ROWS = 4;
   const PEGS_PER_ROW = 6;
   const PEG_SPACING = screenWidth / (PEGS_PER_ROW + 1);
   const ROW_SPACING = (screenHeight - 80) / (ROWS + 1); // -250 to leave space for top and bottom
@@ -96,24 +97,35 @@ const StackChallengeChoose = ({ navigation }) => {
     );
     
     Animated.sequence(animations).start(() => {
-      setIsDropping(false);
-      
-      console.log({
-        finalX: targetX,
-        screenWidth,
-        finalQuizIndex: targetIndex,
-        selectedQuiz: quizOptions[targetIndex],
-        allQuizzes: quizOptions
-      });
-      
-      alert(`Selected: ${quizOptions[targetIndex]}`);
+      setTimeout(() => {
+        setIsDropping(false);
+        setSelectedQuizIndex(targetIndex);
+        
+        console.log({
+          finalX: targetX,
+          screenWidth,
+          finalQuizIndex: targetIndex,
+          selectedQuiz: quizOptions[targetIndex],
+          allQuizzes: quizOptions
+        });
+        
+        alert(`Selected: ${quizOptions[targetIndex]}`);
+      }, 200);
     });
   };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
+      style={styles.container}
+    >
       <TouchableOpacity onPress={dropBall} style={styles.dropButton}>
-        <Text>Drop Ball</Text>
+        <LinearGradient
+          colors={['#00b09b', '#96c93d']}
+          style={styles.buttonGradient}
+        >
+          <Text style={styles.buttonText}>DROP BALL</Text>
+        </LinearGradient>
       </TouchableOpacity>
 
       {pegPositions.map((peg, index) => (
@@ -143,51 +155,78 @@ const StackChallengeChoose = ({ navigation }) => {
 
       <View style={styles.quizContainer}>
         {quizOptions.map((quiz, index) => (
-          <View 
-            key={index} 
+          <LinearGradient
+            key={index}
+            colors={['#4776E6', '#8E54E9']}
             style={[
               styles.quizOption,
-              selectedQuizIndex === index && styles.selectedQuiz
+              !isDropping && selectedQuizIndex === index && styles.selectedQuiz
             ]}
           >
-            <Text>{quiz}</Text>
-            <Text style={{fontSize: 10}}>{index}</Text>
-          </View>
+            <Text style={styles.quizText}>{quiz}</Text>
+            <Text style={styles.indexText}>{index}</Text>
+          </LinearGradient>
         ))}
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   dropButton: {
     alignSelf: 'center',
-    padding: 10,
-    backgroundColor: '#ddd',
-    borderRadius: 5,
     marginTop: 80,
     zIndex: 1,
-
+    borderRadius: 25,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  buttonGradient: {
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   peg: {
     position: 'absolute',
     width: 22,
     height: 22,
-    backgroundColor: '#666',
+    backgroundColor: '#FFD700',
     borderRadius: 12,
     zIndex: 1,
+    borderWidth: 2,
+    borderColor: '#FFA500',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   ball: {
     width: 20,
     height: 20,
-    backgroundColor: 'red',
+    backgroundColor: '#FF4444',
     borderRadius: 10,
     position: 'absolute',
     zIndex: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderWidth: 2,
+    borderColor: '#FF6666',
   },
   quizContainer: {
     flexDirection: 'row',
@@ -196,19 +235,34 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-around',
     zIndex: 1,
+    paddingHorizontal: 10,
   },
   quizOption: {
-    padding: 10,
-    backgroundColor: '#eee',
-    borderRadius: 5,
+    padding: 15,
+    borderRadius: 15,
     alignItems: 'center',
-    width: '22%',
-    borderWidth: 1,
-    borderColor: '#ddd',
+    width: '23%',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   selectedQuiz: {
-    // borderColor: 'green',
-    borderWidth: 2,
+    borderWidth: 3,
+    borderColor: '#FFD700',
+  },
+  quizText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 12,
+  },
+  indexText: {
+    color: '#ffffff',
+    fontSize: 10,
+    opacity: 0.8,
+    marginTop: 5,
   },
 });
 
