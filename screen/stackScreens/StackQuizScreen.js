@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import LottieView from 'lottie-react-native';
 
 
 const ResultButton = ({ onPress, colors, children }) => (
@@ -80,10 +81,35 @@ const StackQuizScreen = ({ route, navigation }) => {
   const [showAnswer, setShowAnswer] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const [showBackground, setShowBackground] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+  const introAnimation = useRef(null);
 
   useEffect(() => {
     const quizData = getQuizByType(quizType);
     setQuestions(quizData);
+
+    // Start intro animation immediately
+    if (introAnimation.current) {
+      introAnimation.current.play(0, 120); // Play from frame 0 to 120 (adjust based on your animation)
+    }
+
+    // Hide intro after animation
+    const timer = setTimeout(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowIntro(false);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }).start();
+      });
+    }, 3000); // Increased to 3s to ensure animation completes
+
+    return () => clearTimeout(timer);
   }, [quizType]);
 
   useEffect(() => {
@@ -234,6 +260,36 @@ const StackQuizScreen = ({ route, navigation }) => {
             </View>
           </View>
         </ScrollView>
+      </LinearGradient>
+    );
+  }
+
+  if (showIntro) {
+    return (
+      <LinearGradient
+        colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
+        style={styles.container}
+      >
+        <Animated.View 
+          style={[
+            styles.introContainer,
+            { opacity: fadeAnim }
+          ]}
+        >
+          <View style={styles.animationContainer}>
+            <LottieView
+              ref={introAnimation}
+              source={require('../../assets/animations/quiz.json')}
+              style={styles.introAnimation}
+              autoPlay={true}  // Changed to true
+              loop={true}      // Changed to true for continuous animation
+              speed={0.5}        // Normal speed
+              resizeMode="cover"
+            />
+          </View>
+          <Text style={styles.introTitle}>{quizName}</Text>
+          <Text style={styles.introSubtitle}>Get Ready!</Text>
+        </Animated.View>
       </LinearGradient>
     );
   }
@@ -628,6 +684,42 @@ const styles = StyleSheet.create({
     fontSize: 26,
     color: '#fff',
     marginBottom: 10,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  introContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  animationContainer: {
+    width: 300,        // Increased size
+    height: 300,       // Increased size
+    marginBottom: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  introAnimation: {
+    width: '100%',
+    height: '100%',
+  },
+  introTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 10,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  introSubtitle: {
+    fontSize: 24,
+    color: '#fff',
+    opacity: 0.9,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
