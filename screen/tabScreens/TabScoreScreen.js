@@ -123,6 +123,7 @@ const TabScoreScreen = () => {
           ))}
         </View>
       </ScrollView>
+        <View style={{height:120}}></View>
     </LinearGradient>
   );
 };
