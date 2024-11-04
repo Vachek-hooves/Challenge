@@ -106,11 +106,11 @@ const TabScoreScreen = () => {
       colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
       style={styles.container}
     >
+        <SafeAreaView/>
       <ScrollView 
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        <SafeAreaView/>
         <Text style={styles.screenTitle}>Quiz Scores</Text>
         <View style={styles.scoreCardsContainer}>
           {quizTypes.map((quiz, index) => (
