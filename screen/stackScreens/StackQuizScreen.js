@@ -1,9 +1,9 @@
-import { StyleSheet, Text, View, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Animated, ScrollView,SafeAreaView } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { FadeInDown } from 'react-native-reanimated';
+
 
 const ResultButton = ({ onPress, colors, children }) => (
   <View style={styles.resultButtonShadow}>
@@ -173,36 +173,57 @@ const StackQuizScreen = ({ route, navigation }) => {
   }
 
   if (showResult) {
+    const percentage = Math.round((score / questions.length) * 100);
     return (
       <LinearGradient
         colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
         style={styles.container}
       >
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultTitle}>Quiz Complete!</Text>
-          <Text style={styles.resultScore}>
-            Your Score: {score}/{questions.length}
-          </Text>
-          <Text style={styles.resultPercentage}>
-            {Math.round((score / questions.length) * 100)}%
-          </Text>
-          
-          <View style={styles.buttonContainer}>
-            <ResultButton
-              onPress={restartQuiz}
-              colors={['#00b09b', '#96c93d']}
-            >
-              <Text style={styles.buttonText}>Try Again</Text>
-            </ResultButton>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.resultContainer}>
+            <Text style={styles.resultTitle}>Quiz Complete!</Text>
             
-            <ResultButton
-              onPress={() => navigation.goBack()}
-              colors={['#FF512F', '#DD2476']}
-            >
-              <Text style={styles.buttonText}>Back to Spinner</Text>
-            </ResultButton>
+            <Icon
+              name={percentage >= 70 ? 'trophy' : 'medal'}
+              size={60}
+              color="#FFD700"
+              style={[styles.optionIcon, { marginBottom: 20 }]}
+            />
+            
+            <Text style={styles.resultScore}>
+              Your Score: {score}/{questions.length}
+            </Text>
+            <Text style={styles.resultPercentage}>
+              {percentage}%
+            </Text>
+            
+            <View style={styles.buttonContainer}>
+              <ResultButton
+                onPress={restartQuiz}
+                colors={['#00b09b', '#96c93d']}
+              >
+                <View style={styles.buttonContent}>
+                  <Icon name="reload" size={24} color="#fff" />
+                  <Text style={styles.buttonText}>Try Again</Text>
+                </View>
+              </ResultButton>
+              
+              <ResultButton
+                onPress={() => navigation.goBack()}
+                colors={['#FF512F', '#DD2476']}
+              >
+                <View style={styles.buttonContent}>
+                  <Icon name="arrow-left" size={24} color="#fff"  />
+                  <Text style={styles.buttonText}>Back to Spinner</Text>
+                </View>
+              </ResultButton>
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </LinearGradient>
     );
   }
@@ -212,48 +233,56 @@ const StackQuizScreen = ({ route, navigation }) => {
       colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
       style={styles.container}
     >
-      <View style={styles.mainContent}>
-        <View style={styles.header}>
-          <Text style={styles.quizName}>{quizName}</Text>
-          <Text style={styles.progress}>
-            Question {currentQuestionIndex + 1}/{questions.length}
-          </Text>
-          <Text style={styles.score}>Score: {score}</Text>
-        </View>
-
-        <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
-          <Text style={styles.question}>
-            {questions[currentQuestionIndex].question}
-          </Text>
-
-          <View style={styles.optionsContainer}>
-            {questions[currentQuestionIndex].options.map((option, index) => {
-              const isCorrect = option === questions[currentQuestionIndex].correctOption;
-              const isSelected = selectedAnswer === option;
-              
-              return (
-                <OptionButton
-                  key={index}
-                  option={option}
-                  index={index}
-                  onPress={() => handleSelectOption(option)}
-                  disabled={showAnswer}
-                  style={[getOptionStyle(option)]}
-                  showAnswer={showAnswer && (isCorrect || isSelected)}
-                  isCorrect={isCorrect}
-                />
-              );
-            })}
+      <SafeAreaView/>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.mainContent}>
+          <View style={styles.header}>
+            <Text style={styles.quizName}>{quizName}</Text>
+            <Text style={styles.progress}>
+              Question {currentQuestionIndex + 1}/{questions.length}
+            </Text>
+            <Text style={styles.score}>Score: {score}</Text>
           </View>
-        </Animated.View>
 
-        {showBackground && questions[currentQuestionIndex].background && (
-          <BackgroundInfo 
-            text={questions[currentQuestionIndex].background}
-            onContinue={handleNextQuestion}
-          />
-        )}
-      </View>
+          <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
+            <Text style={styles.question}>
+              {questions[currentQuestionIndex].question}
+            </Text>
+
+            <View style={styles.optionsContainer}>
+              {questions[currentQuestionIndex].options.map((option, index) => {
+                const isCorrect = option === questions[currentQuestionIndex].correctOption;
+                const isSelected = selectedAnswer === option;
+                
+                return (
+                  <OptionButton
+                    key={index}
+                    option={option}
+                    index={index}
+                    onPress={() => handleSelectOption(option)}
+                    disabled={showAnswer}
+                    style={[getOptionStyle(option)]}
+                    showAnswer={showAnswer && (isCorrect || isSelected)}
+                    isCorrect={isCorrect}
+                  />
+                );
+              })}
+            </View>
+          </Animated.View>
+
+          {showBackground && questions[currentQuestionIndex].background && (
+            <BackgroundInfo 
+              text={questions[currentQuestionIndex].background}
+              onContinue={handleNextQuestion}
+            />
+          )}
+        </View>
+      </ScrollView>
+        <View style={{ height:80 }}></View>
 
       <TouchableOpacity 
         style={styles.returnButton}
@@ -318,10 +347,16 @@ const getOptionColors = (index) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 80, // Add padding for return button
   },
   mainContent: {
     flex: 1,
+    minHeight: '100%',
   },
   header: {
     marginBottom: 30,
@@ -348,7 +383,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 15,
     padding: 20,
-    marginBottom: 20,
   },
   question: {
     fontSize: 20,
@@ -566,12 +600,20 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    zIndex: 1000, // Ensure button stays on top
+   
   },
   returnButtonGradient: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  buttonContent:{
+    flexDirection:'row',
+    alignItems:'center',
+    gap:10
+  
+  }
 });
 
 export default StackQuizScreen;
