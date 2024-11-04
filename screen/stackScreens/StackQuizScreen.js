@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Animated } from 'react-native
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const ResultButton = ({ onPress, colors, children }) => (
   <View style={styles.resultButtonShadow}>
@@ -163,24 +164,30 @@ const StackQuizScreen = ({ route, navigation }) => {
         </Text>
 
         <View style={styles.optionsContainer}>
-          {questions[currentQuestionIndex].options.map((option, index) => (
-            <OptionButton
-              key={index}
-              option={option}
-              index={index}
-              onPress={() => handleSelectOption(option)}
-              disabled={showAnswer}
-              style={[getOptionStyle(option)]}
-            />
-          ))}
+          {questions[currentQuestionIndex].options.map((option, index) => {
+            const isCorrect = option === questions[currentQuestionIndex].correctOption;
+            const isSelected = selectedAnswer === option;
+            
+            return (
+              <OptionButton
+                key={index}
+                option={option}
+                index={index}
+                onPress={() => handleSelectOption(option)}
+                disabled={showAnswer}
+                style={[getOptionStyle(option)]}
+                showAnswer={showAnswer && (isCorrect || isSelected)}
+                isCorrect={isCorrect}
+              />
+            );
+          })}
         </View>
       </Animated.View>
     </LinearGradient>
   );
 };
 
-const OptionButton = ({ option, index, onPress, style, disabled }) => {
-  
+const OptionButton = ({ option, index, onPress, style, disabled, showAnswer, isCorrect }) => {
   return (
     <View style={[styles.shadowContainer, style]}>
       <TouchableOpacity
@@ -194,9 +201,19 @@ const OptionButton = ({ option, index, onPress, style, disabled }) => {
           end={{ x: 1, y: 1 }}
           style={styles.option}
         >
-          <Text style={styles.optionText}>
-            {String.fromCharCode(65 + index)}. {option}
-          </Text>
+          <View style={styles.optionContent}>
+            <Text style={styles.optionText}>
+              {String.fromCharCode(65 + index)}. {option}
+            </Text>
+            {showAnswer && (
+              <Icon
+                name={isCorrect ? 'check-circle' : 'close-circle'}
+                size={32}
+                color={isCorrect ? '#4CAF50' : '#FF5252'}
+                style={styles.optionIcon}
+              />
+            )}
+          </View>
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -275,11 +292,24 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: 'transparent',
   },
+  optionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: 10,
+  },
   optionText: {
     color: '#fff',
     fontSize: 18,
+    flex: 1,
+    marginRight: 10,
     textAlign: 'left',
     fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  optionIcon: {
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
@@ -337,7 +367,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
     textAlign: 'center',
     fontWeight: 'bold',
     textTransform: 'uppercase',
