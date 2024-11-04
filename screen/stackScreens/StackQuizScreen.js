@@ -3,6 +3,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
 
+const ResultButton = ({ onPress, colors, children }) => (
+  <View style={styles.resultButtonShadow}>
+    <TouchableOpacity onPress={onPress} style={styles.resultButtonTouch}>
+      <LinearGradient
+        colors={colors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.resultButtonGradient}
+      >
+        {children}
+      </LinearGradient>
+    </TouchableOpacity>
+  </View>
+);
+
 const StackQuizScreen = ({ route, navigation }) => {
   const { quizType, quizName } = route.params;
   const { getQuizByType } = useStore();
@@ -10,12 +25,58 @@ const StackQuizScreen = ({ route, navigation }) => {
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [questions, setQuestions] = useState([]);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     const quizData = getQuizByType(quizType);
     setQuestions(quizData);
   }, [quizType]);
+
+  useEffect(() => {
+    setSelectedAnswer(null);
+    setShowAnswer(false);
+  }, [currentQuestionIndex]);
+
+  const handleSelectOption = (option) => {
+    if (!showAnswer) {
+      const currentQuestion = questions[currentQuestionIndex];
+      setSelectedAnswer(option);
+      setShowAnswer(true);
+      
+      const isCorrect = option === currentQuestion.correctOption;
+      if (isCorrect) {
+        setScore(prevScore => prevScore + 1);
+      }
+
+      setTimeout(() => {
+        fadeOut(() => {
+          if (currentQuestionIndex < questions.length - 1) {
+            setCurrentQuestionIndex(prev => prev + 1);
+          } else {
+            setShowResult(true);
+          }
+        });
+      }, 1500);
+    }
+  };
+
+  const getOptionStyle = (option) => {
+    if (!showAnswer) {
+      return selectedAnswer === option ? styles.selectedOption : null;
+    }
+    
+    if (option === questions[currentQuestionIndex].correctOption) {
+      return styles.correctOption;
+    }
+    
+    if (selectedAnswer === option && option !== questions[currentQuestionIndex].correctOption) {
+      return styles.incorrectOption;
+    }
+    
+    return styles.disabledOption;
+  };
 
   const fadeOut = (callback) => {
     Animated.timing(fadeAnim, {
@@ -32,30 +93,15 @@ const StackQuizScreen = ({ route, navigation }) => {
     });
   };
 
-  const handleAnswer = (selectedAnswer) => {
-    fadeOut(() => {
-      const isCorrect = selectedAnswer === questions[currentQuestionIndex].correctAnswer;
-      if (isCorrect) {
-        setScore(prevScore => prevScore + 1);
-      }
-
-      setTimeout(() => {
-        if (currentQuestionIndex < questions.length - 1) {
-          setCurrentQuestionIndex(prev => prev + 1);
-        } else {
-          setShowResult(true);
-        }
-      }, 500);
-    });
-  };
-
   const restartQuiz = () => {
     setCurrentQuestionIndex(0);
     setScore(0);
     setShowResult(false);
+    setSelectedAnswer(null);
+    setShowAnswer(false);
   };
 
-  if (!questions.length) {
+  if (!questions.length || !questions[currentQuestionIndex]) {
     return (
       <View style={styles.container}>
         <Text style={styles.loading}>Loading quiz...</Text>
@@ -79,39 +125,22 @@ const StackQuizScreen = ({ route, navigation }) => {
           </Text>
           
           <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={restartQuiz}>
-              <LinearGradient
-                colors={['#00b09b', '#96c93d']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.button}
-              >
-                <Text style={styles.buttonText}>Try Again</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            <ResultButton
+              onPress={restartQuiz}
+              colors={['#00b09b', '#96c93d']}
+            >
+              <Text style={styles.buttonText}>Try Again</Text>
+            </ResultButton>
             
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <LinearGradient
-                colors={['#FF512F', '#DD2476']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.button}
-              >
-                <Text style={styles.buttonText}>Back to Spinner</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            <ResultButton
+              onPress={() => navigation.goBack()}
+              colors={['#FF512F', '#DD2476']}
+            >
+              <Text style={styles.buttonText}>Back to Spinner</Text>
+            </ResultButton>
           </View>
         </View>
       </LinearGradient>
-    );
-  }
-
-  const currentQuestion = questions[currentQuestionIndex];
-  if (!currentQuestion) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loading}>Loading question...</Text>
-      </View>
     );
   }
 
@@ -130,31 +159,47 @@ const StackQuizScreen = ({ route, navigation }) => {
 
       <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
         <Text style={styles.question}>
-          {currentQuestion.question}
+          {questions[currentQuestionIndex].question}
         </Text>
 
         <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((option, index) => (
-            <TouchableOpacity
+          {questions[currentQuestionIndex].options.map((option, index) => (
+            <OptionButton
               key={index}
-              onPress={() => handleAnswer(option)}
-              style={styles.optionWrapper}
-            >
-              <LinearGradient
-                colors={getOptionColors(index)}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.option}
-              >
-                <Text style={styles.optionText}>
-                  {String.fromCharCode(65 + index)}. {option}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
+              option={option}
+              index={index}
+              onPress={() => handleSelectOption(option)}
+              disabled={showAnswer}
+              style={[getOptionStyle(option)]}
+            />
           ))}
         </View>
       </Animated.View>
     </LinearGradient>
+  );
+};
+
+const OptionButton = ({ option, index, onPress, style, disabled }) => {
+  
+  return (
+    <View style={[styles.shadowContainer, style]}>
+      <TouchableOpacity
+        onPress={onPress}
+        disabled={disabled}
+        style={styles.touchableWrapper}
+      >
+        <LinearGradient
+          colors={getOptionColors(index)}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.option}
+        >
+          <Text style={styles.optionText}>
+            {String.fromCharCode(65 + index)}. {option}
+          </Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -207,11 +252,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   optionsContainer: {
-    gap: 10,
+    marginTop: 20,
   },
-  optionWrapper: {
+  shadowContainer: {
+    backgroundColor: 'white',
     borderRadius: 15,
-    overflow: 'hidden',
     marginBottom: 12,
     elevation: 5,
     shadowColor: '#000',
@@ -219,11 +264,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
+  touchableWrapper: {
+    borderRadius: 15,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
   option: {
     padding: 20,
     borderRadius: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'transparent',
   },
   optionText: {
     color: '#fff',
@@ -300,6 +350,40 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#fff',
     textAlign: 'center',
+  },
+  selectedOption: {
+    borderColor: '#fff',
+  },
+  correctOption: {
+    borderColor: '#4CAF50',
+    borderWidth: 3,
+  },
+  incorrectOption: {
+    borderColor: '#FF5252',
+    borderWidth: 3,
+  },
+  disabledOption: {
+    opacity: 0.6,
+  },
+  resultButtonShadow: {
+    backgroundColor: 'white',
+    borderRadius: 25,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    marginVertical: 8,
+  },
+  resultButtonTouch: {
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  resultButtonGradient: {
+    paddingVertical: 18,
+    paddingHorizontal: 35,
+    minWidth: 220,
+    alignItems: 'center',
   },
 });
 
