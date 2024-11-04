@@ -89,9 +89,9 @@ const StackQuizScreen = ({ route, navigation }) => {
     setQuestions(quizData);
 
     // Start intro animation immediately
-    if (introAnimation.current) {
-      introAnimation.current.play(0, 120); // Play from frame 0 to 120 (adjust based on your animation)
-    }
+    // if (introAnimation.current) {
+    //   introAnimation.current.play(0, 120); // Play from frame 0 to 120 (adjust based on your animation)
+    // }
 
     // Hide intro after animation
     const timer = setTimeout(() => {
