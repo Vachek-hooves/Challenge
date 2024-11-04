@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Animated } from 'react-native';
+import { StyleSheet, Text, View, Animated, Easing } from 'react-native';
 import React, { useEffect, useRef } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import LottieView from 'lottie-react-native';
@@ -7,10 +7,18 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 const StackWelcomeScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
+  const spinValue = useRef(new Animated.Value(0)).current;
+
+  // Create rotating animation
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
+  });
 
   useEffect(() => {
-    // Fade in and slide up animation
+    // Start all animations
     Animated.parallel([
+      // Fade and slide animations
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 1000,
@@ -21,12 +29,21 @@ const StackWelcomeScreen = ({ navigation }) => {
         duration: 1000,
         useNativeDriver: true,
       }),
+      // Continuous rotation animation
+      Animated.loop(
+        Animated.timing(spinValue, {
+          toValue: 1,
+          duration: 2000,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+      ),
     ]).start();
 
     // Navigate to TabNavigator after delay
     const timer = setTimeout(() => {
       navigation.replace('TabNavigator');
-    }, 3000); // Increased to 3s to show animation
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -62,11 +79,43 @@ const StackWelcomeScreen = ({ navigation }) => {
         </Animated.View>
 
         {/* Loading Indicator */}
-        <View style={styles.loadingContainer}>
-          <Icon name="loading" size={24} color="#fff" style={styles.loadingIcon} />
-          <Text style={styles.loadingText}>Loading amazing quizzes...</Text>
-        </View>
+        <Animated.View 
+          style={[
+            styles.loadingContainer,
+            { opacity: fadeAnim }
+          ]}
+        >
+          <Animated.View style={{ transform: [{ rotate: spin }] }}>
+            <Icon 
+              name="loading" 
+              size={24} 
+              color="#fff" 
+              style={styles.loadingIcon} 
+            />
+          </Animated.View>
+          <Animated.Text 
+            style={[
+              styles.loadingText,
+              { opacity: fadeAnim }
+            ]}
+          >
+            Loading amazing quizzes...
+          </Animated.Text>
+        </Animated.View>
       </View>
+
+      {/* Optional: Add a pulsing effect to the background */}
+      <Animated.View 
+        style={[
+          styles.pulseOverlay,
+          {
+            opacity: fadeAnim.interpolate({
+              inputRange: [0, 0.5, 1],
+              outputRange: [0, 0.1, 0]
+            })
+          }
+        ]} 
+      />
     </LinearGradient>
   );
 };
@@ -118,6 +167,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'absolute',
     bottom: 50,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 25,
   },
   loadingIcon: {
     marginRight: 10,
@@ -132,6 +185,10 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+  },
+  pulseOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#fff',
   },
 });
 
