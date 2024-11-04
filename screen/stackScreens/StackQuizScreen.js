@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { FadeInDown } from 'react-native-reanimated';
 
 const ResultButton = ({ onPress, colors, children }) => (
   <View style={styles.resultButtonShadow}>
@@ -19,6 +20,55 @@ const ResultButton = ({ onPress, colors, children }) => (
   </View>
 );
 
+const BackgroundInfo = ({ text, onContinue }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View 
+      style={[
+        styles.backgroundInfo,
+        {
+          opacity: fadeAnim,
+          transform: [{
+            translateY: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [20, 0],
+            }),
+          }],
+        },
+      ]}
+    >
+      <View style={styles.backgroundContent}>
+        <Icon name="information" size={24} color="#fff" style={styles.infoIcon} />
+        <Text style={styles.backgroundText}>{text}</Text>
+      </View>
+      
+      <TouchableOpacity 
+        onPress={onContinue}
+        style={styles.continueButton}
+      >
+        <LinearGradient
+          colors={['#00b09b', '#96c93d']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.continueButtonGradient}
+        >
+          <Text style={styles.continueButtonText}>Continue</Text>
+          <Icon name="arrow-right" size={20} color="#fff" style={styles.continueIcon} />
+        </LinearGradient>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
 const StackQuizScreen = ({ route, navigation }) => {
   const { quizType, quizName } = route.params;
   const { getQuizByType } = useStore();
@@ -29,6 +79,7 @@ const StackQuizScreen = ({ route, navigation }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [showBackground, setShowBackground] = useState(false);
 
   useEffect(() => {
     const quizData = getQuizByType(quizType);
@@ -47,20 +98,31 @@ const StackQuizScreen = ({ route, navigation }) => {
       setShowAnswer(true);
       
       const isCorrect = option === currentQuestion.correctOption;
+      
       if (isCorrect) {
         setScore(prevScore => prevScore + 1);
+        setShowBackground(true); // Show background info
+        // Don't automatically proceed to next question
+      } else {
+        // If wrong answer, proceed after delay
+        setTimeout(() => {
+          handleNextQuestion();
+        }, 1500);
       }
-
-      setTimeout(() => {
-        fadeOut(() => {
-          if (currentQuestionIndex < questions.length - 1) {
-            setCurrentQuestionIndex(prev => prev + 1);
-          } else {
-            setShowResult(true);
-          }
-        });
-      }, 1500);
     }
+  };
+
+  const handleNextQuestion = () => {
+    fadeOut(() => {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setShowBackground(false);
+        setShowAnswer(false);
+        setSelectedAnswer(null);
+      } else {
+        setShowResult(true);
+      }
+    });
   };
 
   const getOptionStyle = (option) => {
@@ -150,39 +212,62 @@ const StackQuizScreen = ({ route, navigation }) => {
       colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
       style={styles.container}
     >
-      <View style={styles.header}>
-        <Text style={styles.quizName}>{quizName}</Text>
-        <Text style={styles.progress}>
-          Question {currentQuestionIndex + 1}/{questions.length}
-        </Text>
-        <Text style={styles.score}>Score: {score}</Text>
+      <View style={styles.mainContent}>
+        <View style={styles.header}>
+          <Text style={styles.quizName}>{quizName}</Text>
+          <Text style={styles.progress}>
+            Question {currentQuestionIndex + 1}/{questions.length}
+          </Text>
+          <Text style={styles.score}>Score: {score}</Text>
+        </View>
+
+        <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
+          <Text style={styles.question}>
+            {questions[currentQuestionIndex].question}
+          </Text>
+
+          <View style={styles.optionsContainer}>
+            {questions[currentQuestionIndex].options.map((option, index) => {
+              const isCorrect = option === questions[currentQuestionIndex].correctOption;
+              const isSelected = selectedAnswer === option;
+              
+              return (
+                <OptionButton
+                  key={index}
+                  option={option}
+                  index={index}
+                  onPress={() => handleSelectOption(option)}
+                  disabled={showAnswer}
+                  style={[getOptionStyle(option)]}
+                  showAnswer={showAnswer && (isCorrect || isSelected)}
+                  isCorrect={isCorrect}
+                />
+              );
+            })}
+          </View>
+        </Animated.View>
+
+        {showBackground && questions[currentQuestionIndex].background && (
+          <BackgroundInfo 
+            text={questions[currentQuestionIndex].background}
+            onContinue={handleNextQuestion}
+          />
+        )}
       </View>
 
-      <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
-        <Text style={styles.question}>
-          {questions[currentQuestionIndex].question}
-        </Text>
-
-        <View style={styles.optionsContainer}>
-          {questions[currentQuestionIndex].options.map((option, index) => {
-            const isCorrect = option === questions[currentQuestionIndex].correctOption;
-            const isSelected = selectedAnswer === option;
-            
-            return (
-              <OptionButton
-                key={index}
-                option={option}
-                index={index}
-                onPress={() => handleSelectOption(option)}
-                disabled={showAnswer}
-                style={[getOptionStyle(option)]}
-                showAnswer={showAnswer && (isCorrect || isSelected)}
-                isCorrect={isCorrect}
-              />
-            );
-          })}
-        </View>
-      </Animated.View>
+      <TouchableOpacity 
+        style={styles.returnButton}
+        onPress={() => navigation.goBack()}
+      >
+        <LinearGradient
+          colors={['#FF512F', '#DD2476']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.returnButtonGradient}
+        >
+          <Icon name="keyboard-return" size={28} color="#fff" />
+        </LinearGradient>
+      </TouchableOpacity>
     </LinearGradient>
   );
 };
@@ -234,6 +319,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  mainContent: {
+    flex: 1,
   },
   header: {
     marginBottom: 30,
@@ -413,6 +501,75 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 35,
     minWidth: 220,
+    alignItems: 'center',
+  },
+  backgroundInfo: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 15,
+    padding: 15,
+    marginTop: 20,
+    marginHorizontal: 10,
+  },
+  backgroundContent: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 15,
+  },
+  infoIcon: {
+    marginRight: 10,
+    marginTop: 2,
+  },
+  backgroundText: {
+    color: '#fff',
+    fontSize: 16,
+    flex: 1,
+    lineHeight: 22,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  continueButton: {
+    alignSelf: 'flex-end',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  continueButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+  },
+  continueButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginRight: 5,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  continueIcon: {
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  returnButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  returnButtonGradient: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
 });
