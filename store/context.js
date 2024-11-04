@@ -8,7 +8,7 @@ const STORAGE_KEYS = {
   HISTORY: 'history_quiz',
   SPORT: 'sport_quiz',
   CAPITALS: 'capitals_quiz',
-  FILM: 'film_quiz'
+  FILM: 'film_quiz',
 };
 
 export function StoreProvider({ children }) {
@@ -111,6 +111,59 @@ export function StoreProvider({ children }) {
     }
   };
 
+  // Add function to update quiz score
+  const updateQuizScore = async (quizType, newScore) => {
+    try {
+      // Get current quiz data
+      const currentQuiz = getQuizByType(quizType);
+      
+      // Get existing scores or initialize empty array
+      const scores = currentQuiz.scores || [];
+      
+      // Add new score with timestamp
+      const scoreEntry = {
+        score: newScore,
+        total: currentQuiz.length,
+        percentage: Math.round((newScore / currentQuiz.length) * 100),
+        date: new Date().toISOString(),
+      };
+
+      // Add new score to beginning of array (most recent first)
+      const updatedScores = [scoreEntry, ...scores].slice(0, 10); // Keep only last 10 scores
+      
+      // Create updated quiz data
+      const updatedQuiz = {
+        ...currentQuiz,
+        scores: updatedScores,
+      };
+
+      // Save to AsyncStorage and update state
+      await updateQuiz(quizType, updatedQuiz);
+
+      console.log(`Score updated for ${quizType}:`, scoreEntry);
+      return scoreEntry;
+    } catch (error) {
+      console.error('Error updating quiz score:', error);
+      return null;
+    }
+  };
+
+  // Add function to get quiz scores
+  const getQuizScores = (quizType) => {
+    const quiz = getQuizByType(quizType);
+    return quiz.scores || [];
+  };
+
+  // Add function to get best score
+  const getBestScore = (quizType) => {
+    const scores = getQuizScores(quizType);
+    if (scores.length === 0) return null;
+    
+    return scores.reduce((best, current) => 
+      current.percentage > best.percentage ? current : best
+    , scores[0]);
+  };
+
   const storeValue = {
     historyQuiz,
     sportQuiz,
@@ -119,6 +172,9 @@ export function StoreProvider({ children }) {
     isLoading,
     updateQuiz,
     getQuizByType,
+    updateQuizScore,
+    getQuizScores,
+    getBestScore,
   };
 
   return (

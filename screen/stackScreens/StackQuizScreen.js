@@ -71,7 +71,7 @@ const BackgroundInfo = ({ text, onContinue }) => {
 
 const StackQuizScreen = ({ route, navigation }) => {
   const { quizType, quizName } = route.params;
-  const { getQuizByType } = useStore();
+  const { getQuizByType, updateQuizScore ,getBestScore} = useStore();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
@@ -120,7 +120,7 @@ const StackQuizScreen = ({ route, navigation }) => {
         setShowAnswer(false);
         setSelectedAnswer(null);
       } else {
-        setShowResult(true);
+        handleQuizComplete();
       }
     });
   };
@@ -164,6 +164,12 @@ const StackQuizScreen = ({ route, navigation }) => {
     setShowAnswer(false);
   };
 
+  const handleQuizComplete = async () => {
+    setShowResult(true);
+    const scoreResult = await updateQuizScore(quizType, score);
+    console.log('Score saved:', scoreResult);
+  };
+
   if (!questions.length || !questions[currentQuestionIndex]) {
     return (
       <View style={styles.container}>
@@ -199,6 +205,10 @@ const StackQuizScreen = ({ route, navigation }) => {
             </Text>
             <Text style={styles.resultPercentage}>
               {percentage}%
+            </Text>
+            
+            <Text style={styles.bestScore}>
+              Best Score: {getBestScore(quizType)?.percentage || 0}%
             </Text>
             
             <View style={styles.buttonContainer}>
@@ -613,7 +623,16 @@ const styles = StyleSheet.create({
     alignItems:'center',
     gap:10
   
-  }
+  },
+  bestScore: {
+    fontSize: 26,
+    color: '#fff',
+    marginBottom: 10,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
 });
 
 export default StackQuizScreen;
