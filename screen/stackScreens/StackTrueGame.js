@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LottieView from 'lottie-react-native';
 
 const AnswerButton = ({ onPress, text, disabled, isSelected, isCorrect, showAnswer }) => {
-  let colors = ['#4776E6', '#8E54E9'];
+  let colors = ['#FF512F', '#DD2476'];
   let icon = null;
   
   if (showAnswer) {
