@@ -2,16 +2,61 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {StoreProvider} from './store/context';
-import {TabUserProfile, TabChooseQuiz, TabSpinnerQuiz, TabScoreScreen, TabTrueGame} from './screen/tabScreens';
-import {StackWelcomeScreen, StackChallengeChoose, StackQuizScreen, StackTrueGame} from './screen/stackScreens';
+import {
+  TabUserProfile,
+  TabChooseQuiz,
+  TabSpinnerQuiz,
+  TabScoreScreen,
+  TabTrueGame,
+} from './screen/tabScreens';
+import {
+  StackWelcomeScreen,
+  StackChallengeChoose,
+  StackQuizScreen,
+  StackTrueGame,
+} from './screen/stackScreens';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import {View} from 'react-native';
+import {View, TouchableOpacity, Image, AppState, Text} from 'react-native';
+import {useState, useEffect} from 'react';
+import {
+  toggleBackgroundMusic,
+  setupPlayer,
+  pauseBackgroundMusic,
+  playBackgroundMusic,
+} from './components/sound/setPlayer';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 export const TabNavigator = () => {
+  const [isPlayMusic, setIsPlayMusic] = useState(true);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active' && isPlayMusic) {
+        playBackgroundMusic();
+      } else if (nextAppState === 'inactive' || nextAppState === 'background') {
+        pauseBackgroundMusic();
+      }
+    });
+    const initMusic = async () => {
+      await setupPlayer();
+      await playBackgroundMusic();
+      setIsPlayMusic(true);
+    };
+    initMusic();
+
+    return () => {
+      subscription.remove();
+      pauseBackgroundMusic();
+    };
+  }, []);
+
+  const handlePlayMusicToggle = () => {
+    const newState = toggleBackgroundMusic();
+    setIsPlayMusic(newState);
+  };
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -50,46 +95,33 @@ export const TabNavigator = () => {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({color, size, focused}) => (
-            <View style={{
-              padding: 8,
-              borderRadius: 20,
-              backgroundColor: focused ? 'rgba(253, 187, 45, 0.2)' : 'transparent'
-            }}>
+            <View
+              style={{
+                padding: 8,
+                borderRadius: 20,
+                backgroundColor: focused
+                  ? 'rgba(253, 187, 45, 0.2)'
+                  : 'transparent',
+              }}>
               <Icon name="account" size={40} color={color} />
             </View>
           ),
         }}
       />
-      
-      {/* <Tab.Screen
-        name="TabChooseQuiz"
-        component={TabChooseQuiz}
-        options={{
-          tabBarLabel: 'True/False',
-          tabBarIcon: ({color, size, focused}) => (
-            <View style={{
-              padding: 8,
-              borderRadius: 20,
-              backgroundColor: focused ? 'rgba(253, 187, 45, 0.2)' : 'transparent'
-            }}>
-              <Icon name="check-circle-outline" size={40} color={color} />
-         
-            </View>
-          ),
-        }}
-      /> */}
-
       <Tab.Screen
         name="TabSpinnerQuiz"
         component={TabSpinnerQuiz}
         options={{
           tabBarLabel: 'Quiz',
           tabBarIcon: ({color, size, focused}) => (
-            <View style={{
-              padding: 8,
-              borderRadius: 20,
-              backgroundColor: focused ? 'rgba(253, 187, 45, 0.2)' : 'transparent'
-            }}>
+            <View
+              style={{
+                padding: 8,
+                borderRadius: 20,
+                backgroundColor: focused
+                  ? 'rgba(253, 187, 45, 0.2)'
+                  : 'transparent',
+              }}>
               <Icon name="rotate-3d-variant" size={40} color={color} />
             </View>
           ),
@@ -101,11 +133,14 @@ export const TabNavigator = () => {
         options={{
           tabBarLabel: 'True/False',
           tabBarIcon: ({color, size, focused}) => (
-            <View style={{
-              padding: 8,
-              borderRadius: 20,
-              backgroundColor: focused ? 'rgba(253, 187, 45, 0.2)' : 'transparent'
-            }}>
+            <View
+              style={{
+                padding: 8,
+                borderRadius: 20,
+                backgroundColor: focused
+                  ? 'rgba(253, 187, 45, 0.2)'
+                  : 'transparent',
+              }}>
               <Icon name="check-circle-outline" size={40} color={color} />
             </View>
           ),
@@ -117,20 +152,60 @@ export const TabNavigator = () => {
         options={{
           tabBarLabel: 'Scores',
           tabBarIcon: ({color, size, focused}) => (
-            <View style={{
-              padding: 8,
-              borderRadius: 20,
-              backgroundColor: focused ? 'rgba(253, 187, 45, 0.2)' : 'transparent'
-            }}>
+            <View
+              style={{
+                padding: 8,
+                borderRadius: 20,
+                backgroundColor: focused
+                  ? 'rgba(253, 187, 45, 0.2)'
+                  : 'transparent',
+              }}>
               <Icon name="trophy" size={40} color={color} />
             </View>
           ),
         }}
       />
-      
+      <Tab.Screen
+        name=" "
+        component={EmptyComponent}
+        options={{
+          // tabBarLabel: 'Music',
+
+          tabBarIcon: props => (
+            <TouchableOpacity {...props}
+              onPress={handlePlayMusicToggle}
+              style={{
+                flex: 1,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingTop: 16,
+              }}>
+              <Image
+                source={require('./assets/icons/maracas.png')}
+                style={{
+                  width: 40,
+                  height: 40,
+                  tintColor: isPlayMusic ? '#fdbb2d' : 'gray',
+                }}
+              />
+              <Text
+                style={{
+                  color: isPlayMusic ?  '#fdbb2d' : 'gray',
+                  fontSize: 12,
+                  fontWeight: '600',
+                  marginTop: 16,
+                }}>
+                Play
+              </Text>
+            </TouchableOpacity>
+          ),
+        }}
+        listeners={{tabPress: e => e.preventDefault()}}
+      />
     </Tab.Navigator>
   );
 };
+const EmptyComponent = () => null;
 
 function App() {
   return (
@@ -152,7 +227,7 @@ function App() {
             component={StackChallengeChoose}
           />
           <Stack.Screen name="StackQuizScreen" component={StackQuizScreen} />
-          <Stack.Screen name='StackTrueGame' component={StackTrueGame} />
+          <Stack.Screen name="StackTrueGame" component={StackTrueGame} />
         </Stack.Navigator>
       </NavigationContainer>
     </StoreProvider>
