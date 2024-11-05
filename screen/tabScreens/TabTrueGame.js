@@ -5,7 +5,7 @@ import { useStore } from '../../store/context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
 
-const QuizCard = ({ title, icon, questions, colors, onPress }) => (
+const QuizCard = ({ title, icon, questions, colors, onPress, bestScore }) => (
   <TouchableOpacity style={styles.cardWrapper} onPress={onPress}>
     <LinearGradient
       colors={colors}
@@ -20,9 +20,17 @@ const QuizCard = ({ title, icon, questions, colors, onPress }) => (
         style={styles.cardIcon}
       />
       <Text style={styles.cardTitle}>{title}</Text>
-      <View style={styles.questionInfo}>
-        <Icon name="help-circle-outline" size={16} color="#fff" />
-        <Text style={styles.questionCount}>{questions.length} Questions</Text>
+      <View style={styles.cardInfo}>
+        <View style={styles.questionInfo}>
+          <Icon name="help-circle-outline" size={16} color="#fff" />
+          <Text style={styles.questionCount}>{questions.length} Questions</Text>
+        </View>
+        {bestScore !== null && (
+          <View style={styles.scoreInfo}>
+            <Icon name="trophy" size={16} color="#FFD700" />
+            <Text style={styles.bestScore}>{bestScore}%</Text>
+          </View>
+        )}
       </View>
     </LinearGradient>
   </TouchableOpacity>
@@ -30,7 +38,7 @@ const QuizCard = ({ title, icon, questions, colors, onPress }) => (
 
 const TabTrueGame = () => {
   const navigation = useNavigation();
-  const { trueHistoryQuiz, trueSportQuiz, trueCapitalsQuiz, trueFilmsQuiz } = useStore();
+  const { trueHistoryQuiz, trueSportQuiz, trueCapitalsQuiz, trueFilmsQuiz, getBestScore } = useStore();
 
   const quizCategories = [
     {
@@ -89,6 +97,7 @@ const TabTrueGame = () => {
                 icon={category.icon}
                 questions={category.questions}
                 colors={category.colors}
+                bestScore={getBestScore(category.type)?.percentage || null}
                 onPress={() => handleQuizSelect(category.type, category.questions)}
               />
             ))}
@@ -152,10 +161,30 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
+  cardInfo: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+  },
   questionInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
+  },
+  scoreInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  bestScore: {
+    color: '#FFD700',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   questionCount: {
     color: '#fff',

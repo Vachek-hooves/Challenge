@@ -199,7 +199,7 @@ const StackTrueGame = ({ route, navigation }) => {
         }),
       ]).start();
     } else {
-      setShowResult(true);
+      handleQuizComplete();
     }
   };
 
@@ -209,6 +209,17 @@ const StackTrueGame = ({ route, navigation }) => {
     setShowResult(false);
     setSelectedAnswer(null);
     setShowAnswer(false);
+  };
+
+  const handleQuizComplete = async () => {
+    try {
+      // Update the quiz score in storage
+      await updateQuizScore(quizType, score);
+      setShowResult(true);
+    } catch (error) {
+      console.error('Error saving quiz score:', error);
+      setShowResult(true);
+    }
   };
 
   if (showIntro) {
@@ -238,60 +249,48 @@ const StackTrueGame = ({ route, navigation }) => {
 
   if (showResult) {
     const percentage = Math.round((score / questions.length) * 100);
+    const bestScore = getBestScore(quizType);
+    
     return (
       <LinearGradient
         colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
         style={styles.container}
       >
-        <ScrollView 
-          contentContainerStyle={styles.scrollContainer}
-          bounces={false}
-          showsVerticalScrollIndicator={false}
-        >
+        <SafeAreaView style={styles.safeArea}>
           <View style={styles.resultContainer}>
             <Text style={styles.resultTitle}>Quiz Complete!</Text>
+            <Text style={styles.resultScore}>Score: {score}/{questions.length}</Text>
+            <Text style={styles.resultPercentage}>{percentage}%</Text>
             
-            <Icon
-              name={percentage >= 70 ? 'trophy' : 'medal'}
-              size={60}
-              color="#FFD700"
-              style={[styles.optionIcon, { marginBottom: 20 }]}
-            />
-            
-            <Text style={styles.resultScore}>
-              Your Score: {score}/{questions.length}
-            </Text>
-            <Text style={styles.resultPercentage}>
-              {percentage}%
-            </Text>
-            
-            <Text style={styles.bestScore}>
-              Best Score: {getBestScore(quizType)?.percentage || 0}%
-            </Text>
-            
+            {bestScore && (
+              <Text style={styles.bestScore}>
+                Best Score: {bestScore.percentage}%
+              </Text>
+            )}
+
             <View style={styles.buttonContainer}>
               <ResultButton
                 onPress={restartQuiz}
-                colors={['#00b09b', '#96c93d']}
+                colors={['#4776E6', '#8E54E9']}
               >
                 <View style={styles.buttonContent}>
-                  <Icon name="reload" size={24} color="#fff" />
+                  <Icon name="restart" size={24} color="#fff" style={styles.optionIcon} />
                   <Text style={styles.buttonText}>Try Again</Text>
                 </View>
               </ResultButton>
-              
+
               <ResultButton
                 onPress={() => navigation.goBack()}
                 colors={['#FF512F', '#DD2476']}
               >
                 <View style={styles.buttonContent}>
-                  <Icon name="arrow-left" size={24} color="#fff" />
-                  <Text style={styles.buttonText}>Back to Menu</Text>
+                  <Icon name="keyboard-return" size={24} color="#fff" style={styles.optionIcon} />
+                  <Text style={styles.buttonText}>Return to Menu</Text>
                 </View>
               </ResultButton>
             </View>
           </View>
-        </ScrollView>
+        </SafeAreaView>
       </LinearGradient>
     );
   }
@@ -721,6 +720,15 @@ const styles = StyleSheet.create({
   resultAnimation: {
     width: 200,
     height: 200,
+  },
+  bestScore: {
+    fontSize: 24,
+    color: '#FFD700',
+    marginTop: 10,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
 });
 
