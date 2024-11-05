@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import LottieView from 'lottie-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { setupPlayer, playBackgroundMusic } from '../../components/sound/setPlayer';
 
 const StackWelcomeScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -16,6 +17,13 @@ const StackWelcomeScreen = ({ navigation }) => {
   });
 
   useEffect(() => {
+    // Add music initialization
+    const initMusic = async () => {
+      await setupPlayer();
+      await playBackgroundMusic();
+    };
+    initMusic();
+
     // Start all animations
     Animated.parallel([
       // Fade and slide animations

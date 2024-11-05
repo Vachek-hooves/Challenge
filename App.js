@@ -31,6 +31,7 @@ const Stack = createNativeStackNavigator();
 
 export const TabNavigator = () => {
   const [isPlayMusic, setIsPlayMusic] = useState(true);
+  
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active' && isPlayMusic) {
