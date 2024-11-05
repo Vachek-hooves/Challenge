@@ -2,7 +2,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {StoreProvider} from './store/context';
-import {TabUserProfile, TabChooseQuiz, TabSpinnerQuiz, TabScoreScreen} from './screen/tabScreens';
+import {TabUserProfile, TabChooseQuiz, TabSpinnerQuiz, TabScoreScreen, TabTrueGame} from './screen/tabScreens';
 import {StackWelcomeScreen, StackChallengeChoose, StackQuizScreen} from './screen/stackScreens';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
@@ -60,22 +60,25 @@ export const TabNavigator = () => {
           ),
         }}
       />
-      <Tab.Screen
+      
+      {/* <Tab.Screen
         name="TabChooseQuiz"
         component={TabChooseQuiz}
         options={{
-          tabBarLabel: 'Quiz List',
+          tabBarLabel: 'True/False',
           tabBarIcon: ({color, size, focused}) => (
             <View style={{
               padding: 8,
               borderRadius: 20,
               backgroundColor: focused ? 'rgba(253, 187, 45, 0.2)' : 'transparent'
             }}>
-              <Icon name="format-list-bulleted" size={40} color={color} />
+              <Icon name="check-circle-outline" size={40} color={color} />
+         
             </View>
           ),
         }}
-      />
+      /> */}
+
       <Tab.Screen
         name="TabSpinnerQuiz"
         component={TabSpinnerQuiz}
@@ -88,6 +91,22 @@ export const TabNavigator = () => {
               backgroundColor: focused ? 'rgba(253, 187, 45, 0.2)' : 'transparent'
             }}>
               <Icon name="rotate-3d-variant" size={40} color={color} />
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="TabTrueGame"
+        component={TabTrueGame}
+        options={{
+          tabBarLabel: 'True/False',
+          tabBarIcon: ({color, size, focused}) => (
+            <View style={{
+              padding: 8,
+              borderRadius: 20,
+              backgroundColor: focused ? 'rgba(253, 187, 45, 0.2)' : 'transparent'
+            }}>
+              <Icon name="check-circle-outline" size={40} color={color} />
             </View>
           ),
         }}
@@ -108,6 +127,7 @@ export const TabNavigator = () => {
           ),
         }}
       />
+      
     </Tab.Navigator>
   );
 };
