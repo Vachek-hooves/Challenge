@@ -125,6 +125,9 @@ const StackTrueGame = ({ route, navigation }) => {
   const [showIntro, setShowIntro] = useState(true);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const introAnimation = useRef(null);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const [isCorrectAnimation, setIsCorrectAnimation] = useState(true);
+  const animationRef = useRef(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -145,56 +148,59 @@ const StackTrueGame = ({ route, navigation }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSelectAnswer = (answer) => {
-    if (!showAnswer) {
-      const currentQuestion = questions[currentQuestionIndex];
-      setSelectedAnswer(answer);
-      setShowAnswer(true);
-      
-      const isCorrect = answer === currentQuestion.correctAnswer;
-      
+  const handleSelectAnswer = async (answer) => {
+    setSelectedAnswer(answer);
+    setShowAnswer(true);
+    
+    const isCorrect = answer === questions[currentQuestionIndex].correctAnswer;
+    if (isCorrect) {
+      setScore(score + 1);
+    }
+    
+    // Show animation
+    setIsCorrectAnimation(isCorrect);
+    setShowAnimation(true);
+    
+    // Hide animation after 1.5s
+    setTimeout(() => {
+      setShowAnimation(false);
+      // Only show background info for correct answers
       if (isCorrect) {
-        setScore(prevScore => prevScore + 1);
         setShowBackground(true);
       } else {
+        // For wrong answers, automatically proceed after a short delay
         setTimeout(() => {
           handleNextQuestion();
-        }, 1500);
+        }, 1000);
       }
-    }
+    }, 1500);
   };
 
   const handleNextQuestion = () => {
-    fadeOut(() => {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
-        setShowBackground(false);
-        setShowAnswer(false);
-        setSelectedAnswer(null);
-      } else {
-        handleQuizComplete();
-      }
-    });
-  };
-
-  const fadeOut = (callback) => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start(() => {
-      callback();
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    });
-  };
-
-  const handleQuizComplete = async () => {
-    setShowResult(true);
-    await updateQuizScore(quizType, score);
+    setShowBackground(false);
+    setShowAnswer(false);
+    setSelectedAnswer(null);
+    
+    if (currentQuestionIndex + 1 < questions.length) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setShowAnimation(false);
+      setIsCorrectAnimation(true);
+      
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      setShowResult(true);
+    }
   };
 
   const restartQuiz = () => {
@@ -300,6 +306,7 @@ const StackTrueGame = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}
           bounces={false}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           <View style={styles.mainContent}>
             <View style={styles.header}>
@@ -310,6 +317,21 @@ const StackTrueGame = ({ route, navigation }) => {
               <Text style={styles.score}>Score: {score}</Text>
             </View>
 
+            {showAnimation && (
+              <View style={styles.animationOverlay}>
+                <LottieView
+                  ref={animationRef}
+                  source={isCorrectAnimation ? 
+                    require('../../assets/animations/correct.json') : 
+                    require('../../assets/animations/wrong.json')
+                  }
+                  autoPlay
+                  loop={false}
+                  style={styles.resultAnimation}
+                />
+              </View>
+            )}
+
             <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
               <Text style={styles.question}>
                 {questions[currentQuestionIndex].question}
@@ -318,7 +340,7 @@ const StackTrueGame = ({ route, navigation }) => {
               <View style={styles.answersContainer}>
                 <AnswerButton
                   text="True"
-                  onPress={() => handleSelectAnswer(true)}
+                  onPress={() => !showAnswer && handleSelectAnswer(true)}
                   disabled={showAnswer}
                   isSelected={selectedAnswer === true}
                   isCorrect={questions[currentQuestionIndex].correctAnswer === true}
@@ -326,7 +348,7 @@ const StackTrueGame = ({ route, navigation }) => {
                 />
                 <AnswerButton
                   text="False"
-                  onPress={() => handleSelectAnswer(false)}
+                  onPress={() => !showAnswer && handleSelectAnswer(false)}
                   disabled={showAnswer}
                   isSelected={selectedAnswer === false}
                   isCorrect={questions[currentQuestionIndex].correctAnswer === false}
@@ -372,9 +394,13 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     paddingBottom: 100, // Space for return button
+    minHeight: '100%',
+    justifyContent: 'flex-start',
   },
   mainContent: {
     padding: 20,
+    flex: 1,
+    justifyContent: 'flex-start',
   },
   header: {
     alignItems: 'center',
@@ -412,6 +438,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginBottom: 30,
+    minHeight: 150, // Ensure minimum height for content
   },
   question: {
     fontSize: 24,
@@ -425,6 +452,7 @@ const styles = StyleSheet.create({
   },
   answersContainer: {
     gap: 15,
+    paddingVertical: 10,
   },
   touchableWrapper: {
     borderRadius: 15,
@@ -678,6 +706,21 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+  },
+  animationOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  resultAnimation: {
+    width: 200,
+    height: 200,
   },
 });
 
