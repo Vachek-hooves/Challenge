@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HISTORY_QUIZ, SPORT_QUIZ, CAPITALS_QUIZ, FILM_QUIZ } from '../data/quizData';
+import { TRUE_HISTORY, TRUE_SPORT, TRUE_CAPITALS, TRUE_FILMS } from '../data/trueFalseQuiz';
 
 const StoreContext = createContext();
 
@@ -9,6 +10,10 @@ const STORAGE_KEYS = {
   SPORT: 'sport_quiz',
   CAPITALS: 'capitals_quiz',
   FILM: 'film_quiz',
+  TRUE_HISTORY: 'true_history_quiz',
+  TRUE_SPORT: 'true_sport_quiz',
+  TRUE_CAPITALS: 'true_capitals_quiz',
+  TRUE_FILMS: 'true_films_quiz',
 };
 
 export function StoreProvider({ children }) {
@@ -16,6 +21,10 @@ export function StoreProvider({ children }) {
   const [sportQuiz, setSportQuiz] = useState([]);
   const [capitalsQuiz, setCapitalsQuiz] = useState([]);
   const [filmQuiz, setFilmQuiz] = useState([]);
+  const [trueHistoryQuiz, setTrueHistoryQuiz] = useState([]);
+  const [trueSportQuiz, setTrueSportQuiz] = useState([]);
+  const [trueCapitalsQuiz, setTrueCapitalsQuiz] = useState([]);
+  const [trueFilmsQuiz, setTrueFilmsQuiz] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Initialize quizzes from AsyncStorage or default data
@@ -27,6 +36,10 @@ export function StoreProvider({ children }) {
         const storedSport = await AsyncStorage.getItem(STORAGE_KEYS.SPORT);
         const storedCapitals = await AsyncStorage.getItem(STORAGE_KEYS.CAPITALS);
         const storedFilm = await AsyncStorage.getItem(STORAGE_KEYS.FILM);
+        const storedTrueHistory = await AsyncStorage.getItem(STORAGE_KEYS.TRUE_HISTORY);
+        const storedTrueSport = await AsyncStorage.getItem(STORAGE_KEYS.TRUE_SPORT);
+        const storedTrueCapitals = await AsyncStorage.getItem(STORAGE_KEYS.TRUE_CAPITALS);
+        const storedTrueFilms = await AsyncStorage.getItem(STORAGE_KEYS.TRUE_FILMS);
 
         // Set history quiz
         if (storedHistory) {
@@ -60,6 +73,34 @@ export function StoreProvider({ children }) {
           setFilmQuiz(FILM_QUIZ);
         }
 
+        if (storedTrueHistory) {
+          setTrueHistoryQuiz(JSON.parse(storedTrueHistory));
+        } else {
+          await AsyncStorage.setItem(STORAGE_KEYS.TRUE_HISTORY, JSON.stringify(TRUE_HISTORY));
+          setTrueHistoryQuiz(TRUE_HISTORY);
+        }
+
+        if (storedTrueSport) {
+          setTrueSportQuiz(JSON.parse(storedTrueSport));
+        } else {
+          await AsyncStorage.setItem(STORAGE_KEYS.TRUE_SPORT, JSON.stringify(TRUE_SPORT));
+          setTrueSportQuiz(TRUE_SPORT);
+        }
+
+        if (storedTrueCapitals) {
+          setTrueCapitalsQuiz(JSON.parse(storedTrueCapitals));
+        } else {
+          await AsyncStorage.setItem(STORAGE_KEYS.TRUE_CAPITALS, JSON.stringify(TRUE_CAPITALS));
+          setTrueCapitalsQuiz(TRUE_CAPITALS);
+        }
+
+        if (storedTrueFilms) {
+          setTrueFilmsQuiz(JSON.parse(storedTrueFilms));
+        } else {
+          await AsyncStorage.setItem(STORAGE_KEYS.TRUE_FILMS, JSON.stringify(TRUE_FILMS));
+          setTrueFilmsQuiz(TRUE_FILMS);
+        }
+
         setIsLoading(false);
       } catch (error) {
         console.error('Error initializing quizzes:', error);
@@ -87,6 +128,18 @@ export function StoreProvider({ children }) {
         case 'FILM':
           setFilmQuiz(newData);
           break;
+        case 'TRUE_HISTORY':
+          setTrueHistoryQuiz(newData);
+          break;
+        case 'TRUE_SPORT':
+          setTrueSportQuiz(newData);
+          break;
+        case 'TRUE_CAPITALS':
+          setTrueCapitalsQuiz(newData);
+          break;
+        case 'TRUE_FILMS':
+          setTrueFilmsQuiz(newData);
+          break;
         default:
           break;
       }
@@ -106,6 +159,14 @@ export function StoreProvider({ children }) {
         return capitalsQuiz;
       case 'FILM':
         return filmQuiz;
+      case 'TRUE_HISTORY':
+        return trueHistoryQuiz;
+      case 'TRUE_SPORT':
+        return trueSportQuiz;
+      case 'TRUE_CAPITALS':
+        return trueCapitalsQuiz;
+      case 'TRUE_FILMS':
+        return trueFilmsQuiz;
       default:
         return [];
     }
@@ -169,6 +230,10 @@ export function StoreProvider({ children }) {
     sportQuiz,
     capitalsQuiz,
     filmQuiz,
+    trueHistoryQuiz,
+    trueSportQuiz,
+    trueCapitalsQuiz,
+    trueFilmsQuiz,
     isLoading,
     updateQuiz,
     getQuizByType,

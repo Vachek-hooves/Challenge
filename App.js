@@ -3,7 +3,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {StoreProvider} from './store/context';
 import {TabUserProfile, TabChooseQuiz, TabSpinnerQuiz, TabScoreScreen, TabTrueGame} from './screen/tabScreens';
-import {StackWelcomeScreen, StackChallengeChoose, StackQuizScreen} from './screen/stackScreens';
+import {StackWelcomeScreen, StackChallengeChoose, StackQuizScreen, StackTrueGame} from './screen/stackScreens';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import {View} from 'react-native';
@@ -152,6 +152,7 @@ function App() {
             component={StackChallengeChoose}
           />
           <Stack.Screen name="StackQuizScreen" component={StackQuizScreen} />
+          <Stack.Screen name='StackTrueGame' component={StackTrueGame} />
         </Stack.Navigator>
       </NavigationContainer>
     </StoreProvider>

@@ -1,14 +1,29 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { useRoute } from '@react-navigation/native'
 
 const StackTrueGame = () => {
+  const route = useRoute();
+  const { quizType, questions } = route.params;
+
   return (
-    <View>
-      <Text>StackTrueGame</Text>
+    <View style={styles.container}>
+      <Text style={styles.header}>{quizType}</Text>
+      <Text>Number of questions: {questions.length}</Text>
     </View>
   )
 }
 
-export default StackTrueGame
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+})
 
-const styles = StyleSheet.create({})
+export default StackTrueGame
