@@ -169,36 +169,34 @@ export const TabNavigator = () => {
         name=" "
         component={EmptyComponent}
         options={{
-          // tabBarLabel: 'Music',
-
-          tabBarIcon: props => (
-            <TouchableOpacity {...props}
+          tabBarIcon: ({color, size, focused}) => (
+            <TouchableOpacity
               onPress={handlePlayMusicToggle}
               style={{
-                flex: 1,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingTop: 16,
+                padding: 8,
+                borderRadius: 20,
+                backgroundColor: focused ? 'rgba(253, 187, 45, 0.2)' : 'transparent',
               }}>
-              <Image
-                source={require('./assets/icons/maracas.png')}
+              <View
                 style={{
-                  width: 40,
-                  height: 40,
-                  tintColor: isPlayMusic ? '#fdbb2d' : 'gray',
-                }}
-              />
-              <Text
-                style={{
-                  color: isPlayMusic ?  '#fdbb2d' : 'gray',
-                  fontSize: 12,
-                  fontWeight: '600',
-                  marginTop: 16,
+                  alignItems: 'center',
                 }}>
-                Play
-              </Text>
+                <Image
+                  source={require('./assets/icons/maracas.png')}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    tintColor: isPlayMusic ? '#fdbb2d' : 'rgba(255, 255, 255, 0.6)',
+                  }}
+                />
+              </View>
             </TouchableOpacity>
           ),
+          tabBarLabel: 'Music',
+          tabBarLabelStyle: {
+            fontSize: 14,
+            fontWeight: '500',
+          },
         }}
         listeners={{tabPress: e => e.preventDefault()}}
       />
