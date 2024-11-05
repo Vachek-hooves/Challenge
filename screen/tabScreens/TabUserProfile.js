@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert,TextInput } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, TextInput, Animated, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { launchImageLibrary } from 'react-native-image-picker';
+import LottieView from 'lottie-react-native';
 
 
 const USER_STORAGE_KEY = 'user_profile';
@@ -15,6 +16,7 @@ const TabUserProfile = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState('');
+  const registrationAnimation = useRef(null);
 
   useEffect(() => {
     loadUserProfile();
@@ -113,11 +115,23 @@ const TabUserProfile = () => {
     if (!user.name || !user.image) {
       return (
         <View style={styles.welcomeContainer}>
+          {/* Registration Animation */}
+          <View style={styles.registrationAnimationContainer}>
+            <LottieView
+              ref={registrationAnimation}
+              source={require('../../assets/animations/registrationLock.json')}
+              style={styles.registrationAnimation}
+              autoPlay
+              loop
+              speed={0.8}
+            />
+          </View>
           <Icon name="account-plus" size={80} color="#fff" style={styles.welcomeIcon} />
           <Text style={styles.welcomeTitle}>Welcome to Quiz App!</Text>
           <Text style={styles.welcomeText}>
             Please add your photo and name to start tracking your achievements
           </Text>
+          
         </View>
       );
     }
@@ -191,7 +205,9 @@ const TabUserProfile = () => {
       colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
       style={styles.container}
     >
-      <View style={styles.profileContainer}>
+      <ScrollView 
+      // style={styles.profileContainer} 
+      contentContainerStyle={styles.profileContainer}>
         {/* Profile Image Section */}
         <TouchableOpacity 
           style={styles.imageContainer} 
@@ -244,7 +260,8 @@ const TabUserProfile = () => {
         </View>
 
         {renderUserContent()}
-      </View>
+      <View style={{height: 100}}></View>
+      </ScrollView>
     </LinearGradient>
   );
 };
@@ -256,6 +273,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     alignItems: 'center',
     padding: 20,
+    flexGrow: 1,
   },
   imageContainer: {
     marginTop: 40,
@@ -454,8 +472,8 @@ const styles = StyleSheet.create({
   },
   welcomeContainer: {
     alignItems: 'center',
-    padding: 20,
-    marginTop: 20,
+    // padding: 10,
+    // marginTop: 10,
   },
   welcomeIcon: {
     marginBottom: 20,
@@ -483,6 +501,17 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+  },
+  registrationAnimationContainer: {
+    width: 200,
+    height: 200,
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  registrationAnimation: {
+    width: '100%',
+    height: '100%',
   },
 });
 
