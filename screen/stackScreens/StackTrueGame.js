@@ -643,6 +643,42 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
+  introContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  animationContainer: {
+    width: 300,        // Increased size
+    height: 300,       // Increased size
+    marginBottom: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  introAnimation: {
+    width: '100%',
+    height: '100%',
+  },
+  introTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 10,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  introSubtitle: {
+    fontSize: 24,
+    color: '#fff',
+    opacity: 0.9,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
 });
 
 export default StackTrueGame;
