@@ -170,18 +170,18 @@ export const TabNavigator = () => {
         component={EmptyComponent}
         options={{
           tabBarIcon: ({color, size, focused}) => (
-            
-              <TouchableOpacity onPress={handlePlayMusicToggle}>
-                <Image
-                  source={require('./assets/icons/maracas.png')}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    tintColor: isPlayMusic ? '#fdbb2d' : 'rgba(255, 255, 255, 0.6)',
-                  }}
-                />
-              </TouchableOpacity>
-        
+            <TouchableOpacity onPress={handlePlayMusicToggle}>
+              <Image
+                source={require('./assets/icons/maracas.png')}
+                style={{
+                  width: 40,
+                  height: 40,
+                  tintColor: isPlayMusic
+                    ? '#fdbb2d'
+                    : 'rgba(255, 255, 255, 0.6)',
+                }}
+              />
+            </TouchableOpacity>
           ),
           tabBarLabel: 'Music',
           tabBarLabelStyle: {
