@@ -83,7 +83,7 @@ export const TabNavigator = () => {
         name="TabSpinnerQuiz"
         component={TabSpinnerQuiz}
         options={{
-          tabBarLabel: 'Spinner',
+          tabBarLabel: 'Quiz',
           tabBarIcon: ({color, size, focused}) => (
             <View style={{
               padding: 8,
