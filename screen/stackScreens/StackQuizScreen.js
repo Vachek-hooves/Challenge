@@ -4,6 +4,7 @@ import { useStore } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LottieView from 'lottie-react-native';
+import Layout from '../../components/layout/Layout';
 
 
 const ResultButton = ({ onPress, colors, children }) => (
@@ -295,16 +296,19 @@ const StackQuizScreen = ({ route, navigation }) => {
   }
 
   return (
-    <LinearGradient
-      colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
-      style={styles.container}
-    >
+    <Layout>
+      <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)'}}>
+
+    {/* <LinearGradient
+    colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
+    style={styles.container}
+    > */}
       <SafeAreaView/>
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         bounces={false}
         showsVerticalScrollIndicator={false}
-      >
+        >
         <View style={styles.mainContent}>
           <View style={styles.header}>
             <Text style={styles.quizName}>{quizName}</Text>
@@ -326,14 +330,14 @@ const StackQuizScreen = ({ route, navigation }) => {
                 
                 return (
                   <OptionButton
-                    key={index}
-                    option={option}
-                    index={index}
-                    onPress={() => handleSelectOption(option)}
-                    disabled={showAnswer}
-                    style={[getOptionStyle(option)]}
-                    showAnswer={showAnswer && (isCorrect || isSelected)}
-                    isCorrect={isCorrect}
+                  key={index}
+                  option={option}
+                  index={index}
+                  onPress={() => handleSelectOption(option)}
+                  disabled={showAnswer}
+                  style={[getOptionStyle(option)]}
+                  showAnswer={showAnswer && (isCorrect || isSelected)}
+                  isCorrect={isCorrect}
                   />
                 );
               })}
@@ -342,8 +346,8 @@ const StackQuizScreen = ({ route, navigation }) => {
 
           {showBackground && questions[currentQuestionIndex].background && (
             <BackgroundInfo 
-              text={questions[currentQuestionIndex].background}
-              onContinue={handleNextQuestion}
+            text={questions[currentQuestionIndex].background}
+            onContinue={handleNextQuestion}
             />
           )}
         </View>
@@ -353,17 +357,19 @@ const StackQuizScreen = ({ route, navigation }) => {
       <TouchableOpacity 
         style={styles.returnButton}
         onPress={() => navigation.goBack()}
-      >
+        >
         <LinearGradient
           colors={['#FF512F', '#DD2476']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.returnButtonGradient}
-        >
+          >
           <Icon name="keyboard-return" size={28} color="#fff" />
         </LinearGradient>
       </TouchableOpacity>
-    </LinearGradient>
+    {/* </LinearGradient> */}
+            </View>
+          </Layout>
   );
 };
 

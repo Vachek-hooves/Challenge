@@ -4,6 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import LottieView from 'lottie-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { setupPlayer, playBackgroundMusic } from '../../components/sound/setPlayer';
+import Layout from '../../components/layout/Layout';
 
 const StackWelcomeScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -57,10 +58,12 @@ const StackWelcomeScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <LinearGradient
+    <Layout>
+
+    {/* <LinearGradient
       colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
       style={styles.container}
-    >
+      > */}
       <View style={styles.content}>
         {/* Lottie Animation */}
         <View style={styles.animationContainer}>
@@ -69,7 +72,7 @@ const StackWelcomeScreen = ({ navigation }) => {
             autoPlay
             loop
             style={styles.animation}
-          />
+            />
         </View>
 
         {/* Text Content */}
@@ -81,7 +84,7 @@ const StackWelcomeScreen = ({ navigation }) => {
               transform: [{ translateY: slideAnim }],
             },
           ]}
-        >
+          >
           <Text style={styles.title}>Welcome</Text>
           <Text style={styles.subtitle}>Mr. Blinko Education Quiz</Text>
         </Animated.View>
@@ -92,21 +95,21 @@ const StackWelcomeScreen = ({ navigation }) => {
             styles.loadingContainer,
             { opacity: fadeAnim }
           ]}
-        >
+          >
           <Animated.View style={{ transform: [{ rotate: spin }] }}>
             <Icon 
               name="loading" 
               size={24} 
               color="#fff" 
               style={styles.loadingIcon} 
-            />
+              />
           </Animated.View>
           <Animated.Text 
             style={[
               styles.loadingText,
               { opacity: fadeAnim }
             ]}
-          >
+            >
             Loading amazing quizzes...
           </Animated.Text>
         </Animated.View>
@@ -123,8 +126,9 @@ const StackWelcomeScreen = ({ navigation }) => {
             })
           }
         ]} 
-      />
-    </LinearGradient>
+        />
+    {/* </LinearGradient> */}
+        </Layout>
   );
 };
 

@@ -1,11 +1,21 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, TextInput, Animated, ScrollView } from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+  Animated,
+  ScrollView,
+} from 'react-native';
+import React, {useState, useEffect, useRef} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import LottieView from 'lottie-react-native';
-
+import Layout from '../../components/layout/Layout';
 
 const USER_STORAGE_KEY = 'user_profile';
 
@@ -33,7 +43,7 @@ const TabUserProfile = () => {
     }
   };
 
-  const saveUserProfile = async (newUser) => {
+  const saveUserProfile = async newUser => {
     try {
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(newUser));
       setUser(newUser);
@@ -50,7 +60,7 @@ const TabUserProfile = () => {
       maxWidth: 500,
     };
 
-    launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, response => {
       if (response.didCancel) {
         return;
       }
@@ -101,7 +111,7 @@ const TabUserProfile = () => {
           onPress: async () => {
             try {
               await AsyncStorage.removeItem(USER_STORAGE_KEY);
-              setUser({ name: '', image: null });
+              setUser({name: '', image: null});
             } catch (error) {
               console.error('Error deleting profile:', error);
             }
@@ -126,12 +136,16 @@ const TabUserProfile = () => {
               speed={0.8}
             />
           </View>
-          <Icon name="account-plus" size={80} color="#fff" style={styles.welcomeIcon} />
+          <Icon
+            name="account-plus"
+            size={80}
+            color="#fff"
+            style={styles.welcomeIcon}
+          />
           <Text style={styles.welcomeTitle}>Welcome to Quiz App!</Text>
           <Text style={styles.welcomeText}>
             Please add your photo and name to start tracking your achievements
           </Text>
-          
         </View>
       );
     }
@@ -142,8 +156,7 @@ const TabUserProfile = () => {
         <View style={styles.statsContainer}>
           <LinearGradient
             colors={['#4776E6', '#8E54E9']}
-            style={styles.statsCard}
-          >
+            style={styles.statsCard}>
             <View style={styles.statItem}>
               <Icon name="trophy" size={24} color="#FFD700" />
               <Text style={styles.statLabel}>Best Score</Text>
@@ -166,16 +179,14 @@ const TabUserProfile = () => {
           <View style={styles.achievementsGrid}>
             <LinearGradient
               colors={['#00b09b', '#96c93d']}
-              style={styles.achievementCard}
-            >
+              style={styles.achievementCard}>
               <Icon name="school" size={32} color="#fff" />
               <Text style={styles.achievementTitle}>Quiz Master</Text>
               <Text style={styles.achievementDesc}>Complete 10 quizzes</Text>
             </LinearGradient>
             <LinearGradient
               colors={['#f12711', '#f5af19']}
-              style={styles.achievementCard}
-            >
+              style={styles.achievementCard}>
               <Icon name="star" size={32} color="#FFD700" />
               <Text style={styles.achievementTitle}>Perfect Score</Text>
               <Text style={styles.achievementDesc}>Get 100% in any quiz</Text>
@@ -184,14 +195,12 @@ const TabUserProfile = () => {
         </View>
 
         {/* Delete Profile Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.deleteButton}
-          onPress={handleDeleteProfile}
-        >
+          onPress={handleDeleteProfile}>
           <LinearGradient
             colors={['#FF512F', '#DD2476']}
-            style={styles.deleteButtonGradient}
-          >
+            style={styles.deleteButtonGradient}>
             <Icon name="delete" size={20} color="#fff" />
             <Text style={styles.deleteButtonText}>Delete Profile</Text>
           </LinearGradient>
@@ -201,68 +210,64 @@ const TabUserProfile = () => {
   };
 
   return (
-    <LinearGradient
-      colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
-      style={styles.container}
-    >
-      <ScrollView 
-      // style={styles.profileContainer} 
-      contentContainerStyle={styles.profileContainer}>
-        {/* Profile Image Section */}
-        <TouchableOpacity 
-          style={styles.imageContainer} 
-          onPress={handleImagePick}
-        >
-          {user.image ? (
-            <Image 
-              source={{ uri: user.image }} 
-              style={styles.profileImage} 
-            />
-          ) : (
-            <View style={styles.placeholderImage}>
-              <Icon name="account" size={80} color="#fff" />
+    <Layout>
+      {/* <LinearGradient
+        colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
+        style={styles.container}> */}
+        <ScrollView
+          // style={styles.profileContainer}
+          contentContainerStyle={styles.profileContainer}>
+          {/* Profile Image Section */}
+          <TouchableOpacity
+            style={styles.imageContainer}
+            onPress={handleImagePick}>
+            {user.image ? (
+              <Image source={{uri: user.image}} style={styles.profileImage} />
+            ) : (
+              <View style={styles.placeholderImage}>
+                <Icon name="account" size={80} color="#fff" />
+              </View>
+            )}
+            <View style={styles.editImageButton}>
+              <Icon name="camera" size={20} color="#fff" />
             </View>
-          )}
-          <View style={styles.editImageButton}>
-            <Icon name="camera" size={20} color="#fff" />
+          </TouchableOpacity>
+
+          {/* Name Section */}
+          <View style={styles.nameContainer}>
+            {!isEditing ? (
+              <View style={styles.nameDisplay}>
+                <Text style={styles.nameText}>
+                  {user.name || 'Add Your Name'}
+                </Text>
+                <TouchableOpacity onPress={handleEditName}>
+                  <Icon name="pencil" size={24} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.editNameContainer}>
+                <TextInput
+                  style={styles.nameInput}
+                  value={tempName}
+                  onChangeText={setTempName}
+                  placeholder="Enter your name"
+                  placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                  autoFocus
+                />
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSaveName}>
+                  <Icon name="check" size={24} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
-        </TouchableOpacity>
 
-        {/* Name Section */}
-        <View style={styles.nameContainer}>
-          {!isEditing ? (
-            <View style={styles.nameDisplay}>
-              <Text style={styles.nameText}>
-                {user.name || 'Add Your Name'}
-              </Text>
-              <TouchableOpacity onPress={handleEditName}>
-                <Icon name="pencil" size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.editNameContainer}>
-              <TextInput
-                style={styles.nameInput}
-                value={tempName}
-                onChangeText={setTempName}
-                placeholder="Enter your name"
-                placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                autoFocus
-              />
-              <TouchableOpacity 
-                style={styles.saveButton}
-                onPress={handleSaveName}
-              >
-                <Icon name="check" size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        {renderUserContent()}
-      <View style={{height: 100}}></View>
-      </ScrollView>
-    </LinearGradient>
+          {renderUserContent()}
+          <View style={{height: 100}}></View>
+        </ScrollView>
+      {/* </LinearGradient> */}
+    </Layout>
   );
 };
 
@@ -324,7 +329,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   editNameContainer: {
@@ -357,7 +362,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
@@ -373,7 +378,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   statsContainer: {
@@ -386,7 +391,7 @@ const styles = StyleSheet.create({
     padding: 20,
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
@@ -400,7 +405,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     opacity: 0.9,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   statValue: {
@@ -409,7 +414,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 5,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   statSubtext: {
@@ -417,7 +422,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     opacity: 0.7,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   statDivider: {
@@ -436,7 +441,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   achievementsGrid: {
@@ -449,7 +454,7 @@ const styles = StyleSheet.create({
     padding: 20,
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
@@ -459,7 +464,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   achievementDesc: {
@@ -467,7 +472,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     opacity: 0.7,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   welcomeContainer: {
@@ -479,7 +484,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     opacity: 0.9,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   welcomeTitle: {
@@ -489,7 +494,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   welcomeText: {
@@ -499,7 +504,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
     lineHeight: 24,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
   },
   registrationAnimationContainer: {

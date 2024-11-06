@@ -4,6 +4,7 @@ import { useStore } from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LottieView from 'lottie-react-native';
+import Layout from '../../components/layout/Layout';
 
 const AnswerButton = ({ onPress, text, disabled, isSelected, isCorrect, showAnswer }) => {
   let colors = ['#FF512F', '#DD2476'];
@@ -296,17 +297,20 @@ const StackTrueGame = ({ route, navigation }) => {
   }
 
   return (
-    <LinearGradient
+    <Layout>
+<View style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)'}}>
+
+    {/* <LinearGradient
       colors={['#1a2a6c', '#b21f1f', '#fdbb2d']}
       style={styles.container}
-    >
+      > */}
       <SafeAreaView style={styles.safeArea}>
         <ScrollView 
           contentContainerStyle={styles.scrollContainer}
           bounces={false}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-        >
+          >
           <View style={styles.mainContent}>
             <View style={styles.header}>
               <Text style={styles.quizTitle}>{quizType.replace('TRUE_', '')}</Text>
@@ -327,7 +331,7 @@ const StackTrueGame = ({ route, navigation }) => {
                   autoPlay
                   loop={false}
                   style={styles.resultAnimation}
-                />
+                  />
               </View>
             )}
 
@@ -344,7 +348,7 @@ const StackTrueGame = ({ route, navigation }) => {
                   isSelected={selectedAnswer === true}
                   isCorrect={questions[currentQuestionIndex].correctAnswer === true}
                   showAnswer={showAnswer}
-                />
+                  />
                 <AnswerButton
                   text="False"
                   onPress={() => !showAnswer && handleSelectAnswer(false)}
@@ -352,14 +356,14 @@ const StackTrueGame = ({ route, navigation }) => {
                   isSelected={selectedAnswer === false}
                   isCorrect={questions[currentQuestionIndex].correctAnswer === false}
                   showAnswer={showAnswer}
-                />
+                  />
               </View>
             </Animated.View>
 
             {showBackground && (
               <BackgroundInfo 
-                text={questions[currentQuestionIndex].background}
-                onContinue={handleNextQuestion}
+              text={questions[currentQuestionIndex].background}
+              onContinue={handleNextQuestion}
               />
             )}
           </View>
@@ -368,18 +372,20 @@ const StackTrueGame = ({ route, navigation }) => {
         <TouchableOpacity 
           style={styles.returnButton}
           onPress={() => navigation.goBack()}
-        >
+          >
           <LinearGradient
             colors={['#FF512F', '#DD2476']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.returnButtonGradient}
-          >
+            >
             <Icon name="keyboard-return" size={28} color="#fff" />
           </LinearGradient>
         </TouchableOpacity>
       </SafeAreaView>
-    </LinearGradient>
+    {/* </LinearGradient> */}
+              </View>
+            </Layout>
   );
 };
 
